@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
     height: 120,
     marginBottom: 14,
     paddingHorizontal: 12,
-    backgroundColor: "#4DC591",
+    // backgroundColor: "#4DC591",
   },
   viewHeader: {
     flex: 1,

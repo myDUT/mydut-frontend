@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     paddingLeft: 12,
     borderRadius: 15,
     paddingHorizontal: 10,
-    backgroundColor: "#38f05755",
+    backgroundColor: "#e0e0e0fb",
   },
 
   viewTop: {
