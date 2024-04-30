@@ -17,7 +17,7 @@ export default function Header() {
     <View style={styles.viewHeader}>
       <Image
         source={{
-          uri: "https://images.rawpixel.com/image_png_800/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvcHUyMzMxNzg4LWltYWdlLXJtNTAzLTAxXzEtbDBqOXFyYzMucG5n.png",
+          uri: "https://dut.udn.vn/Files/admin/images/Tin_tuc/Khac/2020/LogoDUT/image002.jpg",
         }}
         style={styles.imgAvt}
       />
@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
   imgAvt: {
     height: 50,
     width: 50,
-    borderRadius: 999,
+    // borderRadius: 999,
   },
   viewHeader: {
     flexDirection: "row",

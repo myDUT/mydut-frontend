@@ -10,10 +10,10 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Header from "./components/Header";
-import ClassCard from "./components/ClassCard";
+import LessonCard from "./components/LessonCard";
 import TimeCard from "./components/TimeCard";
 import CurrentDate from "./components/CurrentDate";
-import { getClassList } from "../../mock/data_mock";
+import { getLessonList } from "../../mock/data_mock";
 
 export default function Home() {
   const [selectedDate, setSelectedDate] = useState(
@@ -107,7 +107,7 @@ export default function Home() {
         <FlatList
           scrollEnabled={true}
           vertical
-          data={getClassList()}
+          data={getLessonList()}
           renderItem={({ item }) => (
             <View
               style={{
@@ -118,7 +118,7 @@ export default function Home() {
                 <TimeCard timeClass={item} />
               </View>
               <View style={{ flex: 3 }}>
-                <ClassCard infoClass={item} />
+                <LessonCard infoClass={item} />
               </View>
             </View>
           )}
