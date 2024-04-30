@@ -3,6 +3,7 @@ import Header from "./components/Header";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ClassCard from "./components/ClassCard";
 import { getClassList } from "../../mock/data_mock";
+import NewClassBtn from "./components/NewClassBtn";
 
 export default function Class() {
   const { top: paddingTop } = useSafeAreaInsets();
@@ -24,6 +25,7 @@ export default function Class() {
         )}
         stickySectionHeadersEnabled
       />
+      <NewClassBtn />
     </View>
   );
 }
