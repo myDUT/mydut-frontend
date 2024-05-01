@@ -19,6 +19,7 @@ const styles = StyleSheet.create({
   txtHeader: {
     fontSize: 45,
     fontWeight: "bold",
+    letterSpacing: 1.2,
   },
   txtDesc: {
     marginRight: -8,

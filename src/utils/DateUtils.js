@@ -4,6 +4,10 @@ import moment from "moment";
 export function formatTimestampToHHmm(timestamp) {
   return moment(timestamp).format("HH:mm");
 }
+
+export function formatTimestamp(timestamp, format) {
+  return moment(timestamp).format(format);
+}
 export function compareWithCurrentTime(timeFrom, timeTo) {
   if (moment() >= timeFrom && moment() <= timeTo) {
     return true;

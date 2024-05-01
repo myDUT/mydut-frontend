@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
   },
   bthLogin: {
     marginTop: 24,
-    backgroundColor: "#4DC591",
+    backgroundColor: "#f78a32",
     borderRadius: 8,
     height: 50,
     justifyContent: "center",
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
   },
   bthLoginText: {
     color: "white",
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: "600",
   },
   viewRegister: {
@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   bthRegister: {
-    color: "#4DC591",
+    color: "#f78a32",
     fontWeight: "bold",
   },
 });

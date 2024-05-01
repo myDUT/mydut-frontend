@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Login from "../screens/auth/Login";
 import Register from "../screens/auth/Register";
 import BottomTab from "./BottomTab";
+import AddNewClass from "../screens/class/components/AddNewClass";
 
 export default function Navigator() {
   const Stack = createNativeStackNavigator();
@@ -10,11 +11,12 @@ export default function Navigator() {
     <NavigationContainer>
       <Stack.Navigator
         screenOptions={{ headerShown: false }}
-        initialRouteName="App"
+        initialRouteName="Login"
       >
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Register" component={Register} />
         <Stack.Screen name="App" component={BottomTab} />
+        <Stack.Screen name="AddNewClass" component={AddNewClass} />
       </Stack.Navigator>
     </NavigationContainer>
   );

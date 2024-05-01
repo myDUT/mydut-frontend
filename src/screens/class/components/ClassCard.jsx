@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
   classCard: {
     height: 120,
     marginLeft: 20,
-    marginVertical: 5,
+    marginVertical: 6,
     paddingLeft: 12,
     borderRadius: 15,
     paddingHorizontal: 10,
