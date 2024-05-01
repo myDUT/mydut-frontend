@@ -7,6 +7,10 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  Modal,
+  Alert,
+  Pressable,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Header from "./components/Header";
@@ -14,11 +18,14 @@ import LessonCard from "./components/LessonCard";
 import TimeCard from "./components/TimeCard";
 import CurrentDate from "./components/CurrentDate";
 import { getLessonList } from "../../mock/data_mock";
+import { formatTimestampToHHmm } from "../../utils/DateUtils";
+import * as Location from "expo-location";
 
 export default function Home() {
   const [selectedDate, setSelectedDate] = useState(
     moment().format("YYYY-MM-DD")
   );
+  const [modalCheckInVisible, setModalCheckInVisible] = useState(false);
 
   const getDaysOfWeek = () => {
     const today = new Date();
@@ -40,6 +47,60 @@ export default function Home() {
 
   const handleDayPress = (day) => {
     setSelectedDate(day);
+  };
+
+  const renderModalCheckIn = () => {
+    const handleCheckIn = async () => {
+      try {
+        // Kiểm tra quyền truy cập vị trí của người dùng
+        const { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+          // Xử lý trường hợp người dùng không cấp quyền truy cập
+          return;
+        }
+
+        // Lấy vị trí của thiết bị
+        const location = await Location.getCurrentPositionAsync({});
+        const { latitude, longitude } = location.coords;
+        console.log("Latitude:", latitude);
+        console.log("Longitude:", longitude);
+
+        setModalCheckInVisible(false);
+      } catch (error) {
+        console.error("Error getting location:", error);
+      }
+    };
+
+    return (
+      <Modal
+        animationType="none"
+        transparent={true}
+        visible={modalCheckInVisible}
+        // onRequestClose={() => {
+        //   setModalCheckInVisible(!modalCheckInVisible);
+        // }}
+      >
+        <TouchableWithoutFeedback
+          onPress={() => setModalCheckInVisible(!modalCheckInVisible)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.centeredView}>
+              <View style={styles.modalView}>
+                <Text style={styles.modalText}>
+                  Are you sure to check-in at {formatTimestampToHHmm(moment())}?
+                </Text>
+                <TouchableOpacity
+                  style={[styles.button, styles.buttonClose]}
+                  onPress={() => handleCheckIn()}
+                >
+                  <Text style={styles.textStyle}>Check-in</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+    );
   };
 
   const { top: paddingTop } = useSafeAreaInsets();
@@ -118,13 +179,19 @@ export default function Home() {
                 <TimeCard timeClass={item} />
               </View>
               <View style={{ flex: 3 }}>
-                <LessonCard infoClass={item} />
+                <LessonCard
+                  onPress={() => {
+                    setModalCheckInVisible(true);
+                  }}
+                  infoClass={item}
+                />
               </View>
             </View>
           )}
           keyExtractor={(item, index) => index.toString()}
         />
       </View>
+      {renderModalCheckIn()}
     </View>
   );
 }
@@ -199,5 +266,54 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     color: "#848586",
     fontWeight: "700",
+  },
+
+  // CSS modal
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22,
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+  },
+  buttonClose: {
+    marginTop: 18,
+    marginBottom: -12,
+    width: 120,
+    backgroundColor: "#2196F3",
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  modalText: {
+    marginBottom: 15,
+    textAlign: "center",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

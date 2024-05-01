@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function Register() {
   const navigation = useNavigation();
@@ -14,14 +15,26 @@ export default function Register() {
 
   return (
     <View style={[styles.container, { paddingTop }]}>
+      <TouchableOpacity
+        onPress={() => navigation.navigate("Login")}
+        style={styles.btnBack}
+      >
+        <Ionicons
+          name="chevron-back-outline"
+          size={24}
+          color={"#000000"}
+          style={{ fontWeight: "600" }}
+        />
+      </TouchableOpacity>
       <Text style={styles.txtLogin}>Register</Text>
       <Text style={styles.txtDescription}>
         Enter your information to register
       </Text>
       <TextInput style={styles.input} placeholder="Username" />
-      <TextInput style={styles.input} placeholder="Password" />
       <TextInput style={styles.input} placeholder="Fullname" />
       <TextInput style={styles.input} placeholder="Student code" />
+      <TextInput style={styles.input} placeholder="Classname" />
+      <TextInput style={styles.input} placeholder="Password" />
       <TextInput style={styles.input} placeholder="Email" />
       <TouchableOpacity style={styles.bthLogin}>
         <Text style={styles.bthLoginText}>Register</Text>
@@ -41,6 +54,11 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "white",
     paddingHorizontal: 24,
+  },
+  btnBack: {
+    marginLeft: -12,
+    marginTop: 12,
+    marginBottom: 16,
   },
   txtLogin: {
     fontSize: 30,

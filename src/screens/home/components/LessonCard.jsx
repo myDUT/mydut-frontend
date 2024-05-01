@@ -2,7 +2,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { compareWithCurrentTime } from "../../../utils/DateUtils";
 
-export default function LessonCard({ infoClass }) {
+export default function LessonCard({ infoClass, onPress }) {
   const getColorText = compareWithCurrentTime(
     infoClass.time_from,
     infoClass.time_to
@@ -19,12 +19,14 @@ export default function LessonCard({ infoClass }) {
 
   return (
     <TouchableOpacity
+      disabled={!compareWithCurrentTime(infoClass.time_from, infoClass.time_to)}
       style={[
         styles.lessonCard,
         compareWithCurrentTime(infoClass.time_from, infoClass.time_to)
           ? { backgroundColor: "#4DC591" }
           : { backgroundColor: "#e0e0e0c5" },
       ]}
+      onPress={onPress}
     >
       <View style={styles.viewHeader}>
         <Text

@@ -12,7 +12,6 @@ import { useNavigation } from "@react-navigation/native";
 import { Dropdown } from "react-native-element-dropdown";
 import { useState } from "react";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
-import moment from "moment";
 import {
   formatTimestamp,
   formatTimestampToHHmm,
