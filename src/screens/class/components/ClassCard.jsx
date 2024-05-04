@@ -1,11 +1,29 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { formatTimestampToHHmm } from "../../../utils/DateUtils";
+import { useNavigation } from "@react-navigation/native";
 
 export default function ClassCard({ classInfo }) {
-  const { name, room, lectucer, time_from, time_to, total_student } = classInfo;
+  const {
+    name,
+    room,
+    lectucer,
+    time_from,
+    time_to,
+    total_student,
+    day_of_week,
+  } = classInfo;
+  const navigation = useNavigation();
+
+  const handleViewDetailClass = () => {
+    navigation.navigate("DetailClass", { data: classInfo });
+  };
+
   return (
-    <TouchableOpacity style={styles.classCard}>
+    <TouchableOpacity
+      style={styles.classCard}
+      onPress={() => handleViewDetailClass()}
+    >
       <View style={styles.viewTop}>
         <View style={styles.viewNameAndTotal}>
           <Text

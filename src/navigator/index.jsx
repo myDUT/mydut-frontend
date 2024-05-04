@@ -16,7 +16,6 @@ export default function Navigator() {
         <Stack.Screen name="Login" component={Login} />
         <Stack.Screen name="Register" component={Register} />
         <Stack.Screen name="App" component={BottomTab} />
-        <Stack.Screen name="AddNewClass" component={AddNewClass} />
       </Stack.Navigator>
     </NavigationContainer>
   );

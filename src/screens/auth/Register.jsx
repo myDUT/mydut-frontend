@@ -33,8 +33,12 @@ export default function Register() {
       <TextInput style={styles.input} placeholder="Username" />
       <TextInput style={styles.input} placeholder="Fullname" />
       <TextInput style={styles.input} placeholder="Student code" />
-      <TextInput style={styles.input} placeholder="Classname" />
-      <TextInput style={styles.input} placeholder="Password" />
+      <TextInput style={styles.input} placeholder="Homeroom class" />
+      <TextInput
+        style={styles.input}
+        placeholder="Password"
+        secureTextEntry={true}
+      />
       <TextInput style={styles.input} placeholder="Email" />
       <TouchableOpacity style={styles.bthLogin}>
         <Text style={styles.bthLoginText}>Register</Text>

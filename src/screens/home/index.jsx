@@ -79,7 +79,7 @@ export default function Home() {
         );
       }
 
-      setModalCheckInVisible(false);
+      setModalCheckInVisible(!modalCheckInVisible);
     };
 
     return (
