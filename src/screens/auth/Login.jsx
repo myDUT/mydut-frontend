@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -10,8 +10,13 @@ import {
   ImageBackground,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
+  Alert,
 } from "react-native";
+import Modal from "react-native-modal";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { user_login } from "../../api/user_api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Login() {
   const { top: paddingTop } = useSafeAreaInsets();
@@ -19,51 +24,129 @@ export default function Login() {
 
   const passwordInputRef = useRef(null); // Tham chiếu đến TextInput cho mật khẩu
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLogin, setIsLogin] = useState(false);
+
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // const keys = await AsyncStorage.getAllKeys();
+        // const data = await AsyncStorage.multiGet(keys);
+        const accessToken = await AsyncStorage.getItem("accessToken");
+        if (accessToken) {
+          navigation.navigate("App");
+        } else {
+          setIsLogin(!isLogin);
+        }
+
+        console.log("AccessToken in AsyncStorage:", accessToken);
+      } catch (error) {
+        console.error("Can't get AccessToken from AsyncStorage:", error);
+      }
+    };
+    fetchData(); // Gọi hàm async ở đây
+  }, []);
+
   const handleLogin = () => {
-    navigation.navigate("App");
+    setIsLoading(true);
+    user_login({
+      username: username,
+      password: password,
+    }).then(async (response) => {
+      if (response.status == 200) {
+        await AsyncStorage.setItem(
+          "accessToken",
+          response.data.data.accessToken
+        );
+        await AsyncStorage.setItem(
+          "refreshToken",
+          response.data.data.refreshToken
+        );
+        await AsyncStorage.setItem("userName", response.data.data.username);
+        await AsyncStorage.setItem("fullName", response.data.data.fullName);
+        await AsyncStorage.setItem("roleName", response.data.data.roleName);
+        await AsyncStorage.setItem(
+          "principal",
+          JSON.stringify(response.data.data)
+        );
+
+        navigation.navigate("App");
+
+        // console.log(
+        //   "🚀 ~ handleLogin ~ access_token:",
+        //   response.data.data.accessToken
+        // );
+        // console.log("🚀 ~ handleLogin ~ role:", response.data.data.roleName);
+      } else {
+        // console.log("🚀 ~ handleLogin ~ response:", response)
+        Alert.alert("Username or password is incorrect. Please check again.");
+        setIsLoading(false);
+      }
+      setUsername("");
+      setPassword("");
+      setIsLoading(false);
+    });
+  };
+
+  const renderLoading = () => {
+    return (
+      <Modal isVisible={isLoading} style={{ flex: 1 }}>
+        <ActivityIndicator size={"large"} color={"#f78a32"} />
+      </Modal>
+    );
   };
 
   return (
-    <KeyboardAvoidingView
-      style={[styles.container, { paddingTop }]}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <ImageBackground
-        source={require("../../../assets/background_login.png")}
-        style={styles.background}
-      />
-      <View style={styles.contentContainer}>
-        <View style={styles.viewLogin}>
-          <Text style={styles.txtLogin}>Login</Text>
-        </View>
-        <TextInput
-          style={styles.input}
-          placeholder="Username"
-          returnKeyType="next" // Đặt kiểu phím trả về cho TextInput này thành "Next"
-          onSubmitEditing={() => passwordInputRef.current.focus()} // Khi người dùng nhấn "Done", chuyển con trỏ đến TextInput cho mật khẩu
+    isLogin && (
+      <KeyboardAvoidingView
+        style={[styles.container, { paddingTop }]}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <ImageBackground
+          source={require("../../../assets/background_login.png")}
+          style={styles.background}
         />
-        <TextInput
-          ref={passwordInputRef} // Gán tham chiếu cho TextInput cho mật khẩu
-          style={styles.input}
-          placeholder="Password"
-          secureTextEntry={true}
-          returnKeyType="done" // Đặt kiểu phím trả về cho TextInput này thành "Done"
-          onSubmitEditing={() => handleLogin()}
-        />
-        <TouchableOpacity
-          onPress={() => navigation.navigate("App")}
-          style={styles.bthLogin}
-        >
-          <Text style={styles.bthLoginText}>Login</Text>
-        </TouchableOpacity>
-        <View style={styles.viewRegister}>
-          <Text>Don't have an account?</Text>
-          <TouchableOpacity onPress={() => navigation.navigate("Register")}>
-            <Text style={styles.btnRegister}>Sign up</Text>
+        <View style={styles.contentContainer}>
+          <View style={styles.viewLogin}>
+            <Text style={styles.txtLogin}>Login</Text>
+          </View>
+          <TextInput
+            style={styles.input}
+            placeholder="Username"
+            returnKeyType="next" // Đặt kiểu phím trả về cho TextInput này thành "Next"
+            onSubmitEditing={() => passwordInputRef.current.focus()} // Khi người dùng nhấn "Done", chuyển con trỏ đến TextInput cho mật khẩu
+            onChangeText={setUsername}
+            value={username}
+          />
+          <TextInput
+            ref={passwordInputRef} // Gán tham chiếu cho TextInput cho mật khẩu
+            style={styles.input}
+            placeholder="Password"
+            secureTextEntry={true}
+            returnKeyType="done" // Đặt kiểu phím trả về cho TextInput này thành "Done"
+            onSubmitEditing={() => handleLogin()}
+            onChangeText={setPassword}
+            value={password}
+          />
+          <TouchableOpacity
+            onPress={() => handleLogin()}
+            style={styles.bthLogin}
+          >
+            <Text style={styles.bthLoginText}>Login</Text>
           </TouchableOpacity>
+          <View style={styles.viewRegister}>
+            <Text>Don't have an account?</Text>
+            <TouchableOpacity onPress={() => navigation.navigate("Register")}>
+              <Text style={styles.btnRegister}>Sign up</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </KeyboardAvoidingView>
+        {renderLoading()}
+      </KeyboardAvoidingView>
+    )
   );
 }
 

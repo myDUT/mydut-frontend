@@ -1,8 +1,27 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from "react";
 import { Image, StyleSheet, Text, View } from "react-native";
 export default function Header() {
+  const [fullName, setFullName] = useState("");
+
   const getGreeting = () => {
     const hour = new Date().getHours();
     let greeting = "";
+
+    useEffect(() => {
+      const getFullNameFromAsyncStorage = async () => {
+        try {
+          const value = await AsyncStorage.getItem("fullName");
+          if (value !== null) {
+            setFullName(value);
+          }
+        } catch (error) {
+          console.error("Error when get data from AsyncStorage:", error);
+        }
+      };
+
+      getFullNameFromAsyncStorage();
+    }, []);
 
     if (hour >= 5 && hour < 12) {
       greeting = "Good morning!";
@@ -13,6 +32,7 @@ export default function Header() {
     }
     return greeting;
   };
+
   return (
     <View style={styles.viewHeader}>
       <Image
@@ -23,7 +43,7 @@ export default function Header() {
       />
       <View>
         <Text style={styles.txtGreeting}>{getGreeting()}</Text>
-        <Text style={styles.txtName}>Welcome back, LUONG NGOC DAT</Text>
+        <Text style={styles.txtName}>Welcome back, {fullName}</Text>
       </View>
     </View>
   );
