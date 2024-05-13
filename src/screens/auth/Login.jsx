@@ -17,6 +17,7 @@ import Modal from "react-native-modal";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { user_login } from "../../api/user_api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import SplashScreen from "../SplashScreen";
 
 export default function Login() {
   const { top: paddingTop } = useSafeAreaInsets();
@@ -55,48 +56,48 @@ export default function Login() {
     user_login({
       username: username,
       password: password,
-    }).then(async (response) => {
-      if (response.status == 200) {
-        await AsyncStorage.setItem(
-          "accessToken",
-          response.data.data.accessToken
-        );
-        await AsyncStorage.setItem(
-          "refreshToken",
-          response.data.data.refreshToken
-        );
-        await AsyncStorage.setItem("userName", response.data.data.username);
-        await AsyncStorage.setItem("fullName", response.data.data.fullName);
-        await AsyncStorage.setItem("roleName", response.data.data.roleName);
-        await AsyncStorage.setItem(
-          "principal",
-          JSON.stringify(response.data.data)
-        );
+    })
+      .then(async (response) => {
+        if (response.status == 200) {
+          await AsyncStorage.setItem(
+            "accessToken",
+            response.data.data.accessToken
+          );
+          await AsyncStorage.setItem(
+            "refreshToken",
+            response.data.data.refreshToken
+          );
+          await AsyncStorage.setItem("userName", response.data.data.username);
+          await AsyncStorage.setItem("fullName", response.data.data.fullName);
+          await AsyncStorage.setItem("roleName", response.data.data.roleName);
+          await AsyncStorage.setItem(
+            "principal",
+            JSON.stringify(response.data.data)
+          );
 
-        navigation.navigate("App");
+          setIsLoading(false);
+          navigation.navigate("App");
 
-        // console.log(
-        //   "🚀 ~ handleLogin ~ access_token:",
-        //   response.data.data.accessToken
-        // );
-        // console.log("🚀 ~ handleLogin ~ role:", response.data.data.roleName);
-      } else {
-        // console.log("🚀 ~ handleLogin ~ response:", response)
-        Alert.alert("Username or password is incorrect. Please check again.");
+          // console.log(
+          //   "🚀 ~ handleLogin ~ access_token:",
+          //   response.data.data.accessToken
+          // );
+          // console.log("🚀 ~ handleLogin ~ role:", response.data.data.roleName);
+        } else {
+          // console.log("🚀 ~ handleLogin ~ response:", response)
+          setIsLoading(false);
+          Alert.alert("Username or password is incorrect. Please check again.");
+        }
+        setUsername("");
+        setPassword("");
+      })
+      .catch((error) => {
+        console.log("🚀 ~ handleLogin ~ error:", error);
+        setUsername("");
+        setPassword("");
         setIsLoading(false);
-      }
-      setUsername("");
-      setPassword("");
-      setIsLoading(false);
-    });
-  };
-
-  const renderLoading = () => {
-    return (
-      <Modal isVisible={isLoading} style={{ flex: 1 }}>
-        <ActivityIndicator size={"large"} color={"#f78a32"} />
-      </Modal>
-    );
+        Alert.alert("An error has occurred. Please try again later.");
+      });
   };
 
   return (
@@ -144,7 +145,8 @@ export default function Login() {
             </TouchableOpacity>
           </View>
         </View>
-        {renderLoading()}
+        {/* {renderLoading()} */}
+        <SplashScreen isDisplay={isLoading} />
       </KeyboardAvoidingView>
     )
   );

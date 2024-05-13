@@ -8,10 +8,16 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { CheckBox } from "rn-inkpad";
+import React, { useEffect, useState } from "react";
 
 export default function Register() {
   const navigation = useNavigation();
   const { top: paddingTop } = useSafeAreaInsets();
+
+  const [checked, setIsChecked] = useState(false);
+
+  useEffect(() => {}, []);
 
   return (
     <View style={[styles.container, { paddingTop }]}>
@@ -32,14 +38,23 @@ export default function Register() {
       </Text>
       <TextInput style={styles.input} placeholder="Username" />
       <TextInput style={styles.input} placeholder="Fullname" />
-      <TextInput style={styles.input} placeholder="Student code" />
-      <TextInput style={styles.input} placeholder="Homeroom class" />
       <TextInput
         style={styles.input}
         placeholder="Password"
         secureTextEntry={true}
       />
       <TextInput style={styles.input} placeholder="Email" />
+
+      <CheckBox
+        checked={checked}
+        iconColor={"#f78a32"}
+        iconSize={25}
+        style={styles.checkboxLecturer}
+        onChange={setIsChecked}
+        title={"Select if you are a lecturer."}
+      />
+      <TextInput style={styles.input} placeholder="Student code" />
+      <TextInput style={styles.input} placeholder="Homeroom class" />
       <TouchableOpacity style={styles.bthLogin}>
         <Text style={styles.bthLoginText}>Register</Text>
       </TouchableOpacity>
@@ -78,6 +93,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#ccc",
+  },
+  checkboxLecturer: {
+    marginTop: 12,
   },
   bthLogin: {
     marginTop: 24,
