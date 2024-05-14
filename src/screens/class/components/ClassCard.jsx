@@ -66,7 +66,7 @@ export default function ClassCard({ classInfo }) {
             </Text>
           </View>
         </View>
-        {true && (
+        {false && (
           <View style={styles.viewLectucer}>
             <Ionicons style={styles.iconInfo} name="person-outline" size={18} />
             <Text style={styles.txtInfo}>{lectucer}</Text>

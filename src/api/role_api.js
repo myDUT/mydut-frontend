@@ -1,6 +1,6 @@
 import ApiManager from "./ApiManager";
 
-export const get_roles = async () => {
+export const FetchRole = async () => {
   try {
     const result = await ApiManager("/roles", {
       method: "GET",

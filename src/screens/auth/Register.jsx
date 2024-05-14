@@ -10,14 +10,61 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { CheckBox } from "rn-inkpad";
 import React, { useEffect, useState } from "react";
+import { Formik } from "formik";
+import * as Yup from "yup";
+import { FetchRole } from "../../api/role_api";
+import { AddNewUser } from "../../api/user_api";
+import SplashScreen from "../SplashScreen";
 
 export default function Register() {
   const navigation = useNavigation();
   const { top: paddingTop } = useSafeAreaInsets();
 
-  const [checked, setIsChecked] = useState(false);
+  const [roles, setRoles] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {}, []);
+  const validationSchema = Yup.object().shape({
+    username: Yup.string().required("Username is required"),
+    fullName: Yup.string().required("Fullname is required"),
+    password: Yup.string().required("Password is required"),
+    email: Yup.string().email("Invalid email").required("Email is required"),
+    isLecturer: Yup.boolean(),
+    studentCode: Yup.string(),
+    homeroomClass: Yup.string(),
+  });
+
+  useEffect(() => {
+    FetchRole()
+      .then((response) => {
+        return setRoles(response.data.data);
+      })
+      .catch((error) => {
+        console.log("🚀 ~ useEffect ~ error:", error);
+      });
+  }, []);
+
+  const handleAddNewUser = async (values) => {
+    setIsLoading(true);
+    const roleId = values.isLecturer
+      ? roles?.find((role) => role.roleName === "TEACHER").roleId
+      : roles?.find((role) => role.roleName === "STUDENT").roleId;
+
+    const data = { ...values, roleId };
+    delete data.isLecturer;
+
+    await AddNewUser(data)
+      .then((response) => {
+        if (response.status == 200) {
+          setIsLoading(false);
+          navigation.navigate("Login");
+        }
+      })
+      .catch((error) => {
+        console.log("🚀 ~ handleLogin ~ error:", error);
+        setIsLoading(false);
+        Alert.alert("An error has occurred. Please try again later.");
+      });
+  };
 
   return (
     <View style={[styles.container, { paddingTop }]}>
@@ -36,34 +83,122 @@ export default function Register() {
       <Text style={styles.txtDescription}>
         Enter your information to register
       </Text>
-      <TextInput style={styles.input} placeholder="Username" />
-      <TextInput style={styles.input} placeholder="Fullname" />
-      <TextInput
-        style={styles.input}
-        placeholder="Password"
-        secureTextEntry={true}
-      />
-      <TextInput style={styles.input} placeholder="Email" />
+      <Formik
+        initialValues={{
+          username: "",
+          fullName: "",
+          password: "",
+          email: "",
+          isLecturer: false,
+          studentCode: "",
+          homeroomClass: "",
+        }}
+        onSubmit={handleAddNewUser}
+        validationSchema={validationSchema}
+      >
+        {({
+          handleChange,
+          handleBlur,
+          handleSubmit,
+          setFieldValue,
+          values,
+          errors,
+          touched,
+        }) => (
+          <View>
+            {/* Username */}
+            <TextInput
+              style={styles.input}
+              placeholder="Username"
+              onChangeText={handleChange("username")}
+              onBlur={handleBlur("username")}
+              value={values.username}
+            />
+            {errors.username && touched.username && (
+              <Text style={styles.errorText}>{errors.username}</Text>
+            )}
 
-      <CheckBox
-        checked={checked}
-        iconColor={"#f78a32"}
-        iconSize={25}
-        style={styles.checkboxLecturer}
-        onChange={setIsChecked}
-        title={"Select if you are a lecturer."}
-      />
-      <TextInput style={styles.input} placeholder="Student code" />
-      <TextInput style={styles.input} placeholder="Homeroom class" />
-      <TouchableOpacity style={styles.bthLogin}>
-        <Text style={styles.bthLoginText}>Register</Text>
-      </TouchableOpacity>
+            {/* Fullname */}
+            <TextInput
+              style={styles.input}
+              placeholder="Fullname"
+              onChangeText={handleChange("fullName")}
+              onBlur={handleBlur("fullName")}
+              value={values.fullName}
+            />
+            {errors.fullName && touched.fullName && (
+              <Text style={styles.errorText}>{errors.fullName}</Text>
+            )}
+
+            {/* Password */}
+            <TextInput
+              style={styles.input}
+              placeholder="Password"
+              onChangeText={handleChange("password")}
+              onBlur={handleBlur("password")}
+              value={values.password}
+              secureTextEntry
+            />
+            {errors.password && touched.password && (
+              <Text style={styles.errorText}>{errors.password}</Text>
+            )}
+
+            {/* Email */}
+            <TextInput
+              style={styles.input}
+              placeholder="Email"
+              onChangeText={handleChange("email")}
+              onBlur={handleBlur("email")}
+              value={values.email}
+            />
+            {errors.email && touched.email && (
+              <Text style={styles.errorText}>{errors.email}</Text>
+            )}
+
+            {/* Checkbox */}
+            <CheckBox
+              checked={values.isLecturer}
+              iconColor={"#f78a32"}
+              iconSize={25}
+              style={styles.checkboxLecturer}
+              onChange={() => {
+                setFieldValue("isLecturer", !values.isLecturer);
+                setFieldValue("studentCode", "");
+                setFieldValue("homeroomClass", "");
+              }}
+              title={"Are you a lecturer?"}
+            />
+
+            {!values.isLecturer && (
+              <>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Student code"
+                  onChangeText={handleChange("studentCode")}
+                  value={values.studentCode}
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Homeroom class"
+                  onChangeText={handleChange("homeroomClass")}
+                  value={values.homeroomClass}
+                />
+              </>
+            )}
+
+            <TouchableOpacity style={styles.bthLogin} onPress={handleSubmit}>
+              <Text style={styles.bthLoginText}>Register</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </Formik>
       <View style={styles.viewRegister}>
         <Text>Already have an account?</Text>
         <TouchableOpacity onPress={() => navigation.navigate("Login")}>
           <Text style={styles.bthRegister}>Login</Text>
         </TouchableOpacity>
       </View>
+      <SplashScreen isDisplay={isLoading} />
     </View>
   );
 }
@@ -119,5 +254,10 @@ const styles = StyleSheet.create({
   bthRegister: {
     color: "#f78a32",
     fontWeight: "bold",
+  },
+  errorText: {
+    color: "red",
+    marginTop: 5,
+    marginLeft: 5,
   },
 });

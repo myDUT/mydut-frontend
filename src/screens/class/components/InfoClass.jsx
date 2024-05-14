@@ -27,13 +27,13 @@ export default function InfoClass({ onFormSubmit, initFormData }) {
   ];
 
   const dataDayOfWeek = [
-    { label: "Monday", value: "1" },
-    { label: "Tuesday", value: "2" },
-    { label: "Wednesday", value: "3" },
-    { label: "Thursday", value: "4" },
-    { label: "Friday", value: "5" },
-    { label: "Saturday", value: "6" },
-    { label: "Sunday", value: "7" },
+    { label: "Monday", value: 2 },
+    { label: "Tuesday", value: 3 },
+    { label: "Wednesday", value: 4 },
+    { label: "Thursday", value: 5 },
+    { label: "Friday", value: 6 },
+    { label: "Saturday", value: 7 },
+    { label: "Sunday", value: 1 },
   ];
 
   const [isFocusDDRoom, setIsFocusDDRoom] = useState(false);
@@ -110,7 +110,7 @@ export default function InfoClass({ onFormSubmit, initFormData }) {
           style={styles.txtInput}
           value={formData.name}
           onChangeText={(name) => handleChange("name", name)}
-        ></TextInput>
+        />
       </View>
       <View style={styles.viewTxtInput}>
         <Text style={styles.txtLabel}>Classcode</Text>

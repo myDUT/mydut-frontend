@@ -15,9 +15,10 @@ import {
 } from "react-native";
 import Modal from "react-native-modal";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { user_login } from "../../api/user_api";
+import { UserLogin } from "../../api/user_api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import SplashScreen from "../SplashScreen";
+import Toast from "react-native-toast-message";
 
 export default function Login() {
   const { top: paddingTop } = useSafeAreaInsets();
@@ -53,7 +54,7 @@ export default function Login() {
 
   const handleLogin = () => {
     setIsLoading(true);
-    user_login({
+    UserLogin({
       username: username,
       password: password,
     })
@@ -86,7 +87,8 @@ export default function Login() {
         } else {
           // console.log("🚀 ~ handleLogin ~ response:", response)
           setIsLoading(false);
-          Alert.alert("Username or password is incorrect. Please check again.");
+          // Alert.alert("Username or password is incorrect. Please check again.");
+          showIncorrectLoginToast();
         }
         setUsername("");
         setPassword("");
@@ -96,8 +98,25 @@ export default function Login() {
         setUsername("");
         setPassword("");
         setIsLoading(false);
-        Alert.alert("An error has occurred. Please try again later.");
+        // Alert.alert("An error has occurred. Please try again later.");
+        showErrorLoginToast();
       });
+  };
+
+  const showErrorLoginToast = () => {
+    Toast.show({
+      type: "error",
+      text1: "Notification",
+      text2: "An error has occurred. Please try again later.",
+    });
+  };
+
+  const showIncorrectLoginToast = () => {
+    Toast.show({
+      type: "error",
+      text1: "Notification",
+      text2: "Username or password is incorrect. Please check again.",
+    });
   };
 
   return (

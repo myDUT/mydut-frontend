@@ -48,7 +48,7 @@ export default function AddNewClass() {
         <View style={styles.viewHeader}>
           <View>
             <Text style={styles.txtHeader}>New class</Text>
-            <Text style={styles.txtHeader}>New happiness</Text>
+            {/* <Text style={styles.txtHeader}>New happiness</Text> */}
           </View>
           <Text style={styles.txtDesc}>
             Enter relevant information to create a new class.
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     height: 50,
     marginHorizontal: 20,
-    marginBottom: 20,
+    marginBottom: 10,
     borderRadius: 15,
   },
 });
