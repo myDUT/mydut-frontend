@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
@@ -15,6 +16,7 @@ import * as Yup from "yup";
 import { FetchRole } from "../../api/role_api";
 import { AddNewUser } from "../../api/user_api";
 import SplashScreen from "../SplashScreen";
+import Toast from "react-native-toast-message";
 
 export default function Register() {
   const navigation = useNavigation();
@@ -43,6 +45,22 @@ export default function Register() {
       });
   }, []);
 
+  const showSuccessCreateUserToast = () => {
+    Toast.show({
+      type: "success",
+      text1: "Notification",
+      text2: "Create new user successfully.",
+    });
+  };
+
+  const showFailedCreateUser = () => {
+    Toast.show({
+      type: "error",
+      text1: "Notification",
+      text2: "An error has occurred. Please try again later.",
+    });
+  };
+
   const handleAddNewUser = async (values) => {
     setIsLoading(true);
     const roleId = values.isLecturer
@@ -55,14 +73,18 @@ export default function Register() {
     await AddNewUser(data)
       .then((response) => {
         if (response.status == 200) {
+          showSuccessCreateUserToast();
           setIsLoading(false);
           navigation.navigate("Login");
+        } else {
+          setIsLoading(false);
+          showFailedCreateUser();
         }
       })
       .catch((error) => {
         console.log("🚀 ~ handleLogin ~ error:", error);
         setIsLoading(false);
-        Alert.alert("An error has occurred. Please try again later.");
+        showFailedCreateUser();
       });
   };
 

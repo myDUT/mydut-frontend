@@ -1,7 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import Navigator from "./src/navigator";
-import Toast, { BaseToast, ErrorToast } from "react-native-toast-message";
+import Toast, { BaseToast, ErrorToast, SuccessToast } from "react-native-toast-message";
 
 export default function App() {
   return (
@@ -21,7 +21,7 @@ const toastConfig = {
     by modifying the existing `BaseToast` component
   */
   success: (props) => (
-    <BaseToast
+    <SuccessToast
       {...props}
       // style={{ borderLeftColor: "pink" }}
       contentContainerStyle={{ paddingHorizontal: 15 }}
