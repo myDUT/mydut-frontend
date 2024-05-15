@@ -13,19 +13,9 @@ import {
   formatTimestamp,
   formatTimestampToHHmm,
 } from "../../../utils/DateUtils";
+import { fetchRoom } from "../../../api/room_api";
 
 export default function InfoClass({ onFormSubmit, initFormData }) {
-  const dataRoom = [
-    { label: "F304", value: "1" },
-    { label: "E101", value: "2" },
-    { label: "E102", value: "3" },
-    { label: "E103", value: "4" },
-    { label: "E201", value: "5" },
-    { label: "E202", value: "6" },
-    { label: "E203", value: "7" },
-    { label: "H102", value: "8" },
-  ];
-
   const dataDayOfWeek = [
     { label: "Monday", value: 2 },
     { label: "Tuesday", value: 3 },
@@ -35,6 +25,8 @@ export default function InfoClass({ onFormSubmit, initFormData }) {
     { label: "Saturday", value: 7 },
     { label: "Sunday", value: 1 },
   ];
+
+  const [dataRoom, setDataRoom] = useState([]);
 
   const [isFocusDDRoom, setIsFocusDDRoom] = useState(false);
   const [isFocusDDDay, setIsFocusDDDay] = useState(false);
@@ -48,15 +40,29 @@ export default function InfoClass({ onFormSubmit, initFormData }) {
   const [formData, setFormData] = useState(
     initFormData || {
       name: "",
-      classcode: "",
-      room: "",
-      dayofweek: "",
-      timefrom: null,
-      timeto: null,
-      datefrom: null,
-      dateto: null,
+      classCode: "",
+      roomId: "",
+      dayOfWeek: "",
+      timeFrom: null,
+      timeTo: null,
+      dateFrom: null,
+      dateTo: null,
     }
   );
+
+  useEffect(() => {
+    fetchRoom()
+      .then((response) => {
+        return setDataRoom(response.data.data);
+      })
+      .catch((error) => {});
+  }, []);
+
+  useEffect(() => {
+    if (onFormSubmit) {
+      onFormSubmit(formData);
+    }
+  }, [formData]);
 
   const showPicker = (mode, type) => {
     setSelectedMode(mode);
@@ -67,16 +73,6 @@ export default function InfoClass({ onFormSubmit, initFormData }) {
   const hidePicker = () => {
     setPickerVisible(false);
   };
-
-  useEffect(() => {
-    console.log("🚀 ~ InfoClass ~ formData:", formData);
-  }, []);
-
-  useEffect(() => {
-    if (onFormSubmit) {
-      onFormSubmit(formData);
-    }
-  }, [formData]);
 
   const handleDateTimeConfirm = (date) => {
     let key = `` + selectedMode + selectedType;
@@ -101,6 +97,7 @@ export default function InfoClass({ onFormSubmit, initFormData }) {
       />
     );
   };
+
   return (
     <View style={styles.viewBody}>
       <View style={styles.viewTxtInput}>
@@ -117,8 +114,8 @@ export default function InfoClass({ onFormSubmit, initFormData }) {
         <TextInput
           placeholder={"Ex: HMUDS12024"}
           style={styles.txtInput}
-          value={formData.classcode}
-          onChangeText={(classcode) => handleChange("classcode", classcode)}
+          value={formData.classCode}
+          onChangeText={(classCode) => handleChange("classCode", classCode)}
         />
       </View>
       <View style={styles.viewRoomAndDay}>
@@ -136,15 +133,15 @@ export default function InfoClass({ onFormSubmit, initFormData }) {
             data={dataRoom}
             search
             maxHeight={300}
-            labelField="label"
-            valueField="value"
+            labelField="name"
+            valueField="roomId"
             placeholder={!isFocusDDRoom ? "Select room" : "..."}
             searchPlaceholder="Search..."
-            value={formData.room}
+            value={formData.roomId}
             onFocus={() => setIsFocusDDRoom(true)}
             onBlur={() => setIsFocusDDRoom(false)}
             onChange={(item) => {
-              handleChange("room", item.value);
+              handleChange("roomId", item.roomId);
               setIsFocusDDRoom(false);
             }}
             renderLeftIcon={() => (
@@ -174,11 +171,11 @@ export default function InfoClass({ onFormSubmit, initFormData }) {
             labelField="label"
             valueField="value"
             placeholder={!isFocusDDDay ? "Choose a day" : "..."}
-            value={formData["dayofweek"]}
+            value={formData.dayOfWeek}
             onFocus={() => setIsFocusDDDay(true)}
             onBlur={() => setIsFocusDDDay(false)}
             onChange={(item) => {
-              handleChange("dayofweek", item.value);
+              handleChange("dayOfWeek", item.value);
               setIsFocusDDDay(false);
             }}
             renderLeftIcon={() => (
@@ -197,13 +194,13 @@ export default function InfoClass({ onFormSubmit, initFormData }) {
         <View style={styles.viewTime}>
           <TouchableOpacity
             style={styles.btnDateFrom}
-            onPress={() => showPicker("time", "from")}
+            onPress={() => showPicker("time", "From")}
           >
             <View style={styles.viewPicker}>
               <Text style={styles.labelPicker}>From</Text>
               <Text style={{ fontSize: 18 }}>
-                {formData["timefrom"] != null
-                  ? formatTimestampToHHmm(formData["timefrom"])
+                {formData.timeFrom != null
+                  ? formatTimestampToHHmm(formData.timeFrom)
                   : ""}
               </Text>
               <Ionicons
@@ -216,13 +213,13 @@ export default function InfoClass({ onFormSubmit, initFormData }) {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.btnDateTo}
-            onPress={() => showPicker("time", "to")}
+            onPress={() => showPicker("time", "To")}
           >
             <View style={styles.viewPicker}>
               <Text style={styles.labelPicker}>To</Text>
               <Text style={{ fontSize: 18 }}>
-                {formData["timeto"] != null
-                  ? formatTimestampToHHmm(formData["timeto"])
+                {formData.timeTo != null
+                  ? formatTimestampToHHmm(formData.timeTo)
                   : ""}
               </Text>
               <Ionicons
@@ -240,13 +237,13 @@ export default function InfoClass({ onFormSubmit, initFormData }) {
         <View style={styles.viewTime}>
           <TouchableOpacity
             style={styles.btnDateFrom}
-            onPress={() => showPicker("date", "from")}
+            onPress={() => showPicker("date", "From")}
           >
             <View style={styles.viewPicker}>
               <Text style={styles.labelPicker}>From</Text>
               <Text style={{ fontSize: 16 }}>
-                {formData["datefrom"] != null
-                  ? formatTimestamp(formData["datefrom"], "L")
+                {formData.dateFrom != null
+                  ? formatTimestamp(formData.dateFrom, "L")
                   : ""}
               </Text>
               <Ionicons
@@ -259,13 +256,13 @@ export default function InfoClass({ onFormSubmit, initFormData }) {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.btnDateTo}
-            onPress={() => showPicker("date", "to")}
+            onPress={() => showPicker("date", "To")}
           >
             <View style={styles.viewPicker}>
               <Text style={styles.labelPicker}>To</Text>
               <Text style={{ fontSize: 16 }}>
-                {formData["dateto"] != null
-                  ? formatTimestamp(formData["dateto"], "L")
+                {formData.dateTo != null
+                  ? formatTimestamp(formData.dateTo, "L")
                   : ""}
               </Text>
               <Ionicons
@@ -278,10 +275,10 @@ export default function InfoClass({ onFormSubmit, initFormData }) {
           </TouchableOpacity>
         </View>
       </View>
-      {renderDateTimePicker("time", "from")}
-      {renderDateTimePicker("time", "to")}
-      {renderDateTimePicker("date", "from")}
-      {renderDateTimePicker("date", "to")}
+      {renderDateTimePicker("time", "From")}
+      {renderDateTimePicker("time", "To")}
+      {renderDateTimePicker("date", "From")}
+      {renderDateTimePicker("date", "To")}
     </View>
   );
 }

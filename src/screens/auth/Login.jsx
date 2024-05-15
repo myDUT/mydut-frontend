@@ -15,7 +15,7 @@ import {
 } from "react-native";
 import Modal from "react-native-modal";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { UserLogin } from "../../api/user_api";
+import { userLogin } from "../../api/user_api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import SplashScreen from "../SplashScreen";
 import Toast from "react-native-toast-message";
@@ -39,7 +39,7 @@ export default function Login() {
         // const data = await AsyncStorage.multiGet(keys);
         const accessToken = await AsyncStorage.getItem("accessToken");
         if (accessToken) {
-          navigation.navigate("App");
+          navigation.replace("App");
         } else {
           setIsLogin(!isLogin);
         }
@@ -54,7 +54,7 @@ export default function Login() {
 
   const handleLogin = () => {
     setIsLoading(true);
-    UserLogin({
+    userLogin({
       username: username,
       password: password,
     })
@@ -77,7 +77,7 @@ export default function Login() {
           );
 
           setIsLoading(false);
-          navigation.navigate("App");
+          navigation.replace("App");
 
           // console.log(
           //   "🚀 ~ handleLogin ~ access_token:",

@@ -6,12 +6,13 @@ import { useNavigation } from "@react-navigation/native";
 export default function ClassCard({ classInfo }) {
   const {
     name,
+    classId,
     room,
-    lectucer,
-    time_from,
-    time_to,
-    total_student,
-    day_of_week,
+    lecturer,
+    timeFrom,
+    timeTo,
+    totalStudent,
+    classCode,
   } = classInfo;
   const navigation = useNavigation();
 
@@ -39,12 +40,12 @@ export default function ClassCard({ classInfo }) {
               name="people-outline"
               size={18}
             />
-            <Text style={styles.txtTotalStudent}>{total_student}</Text>
+            <Text style={styles.txtTotalStudent}>{totalStudent}</Text>
           </View>
         </View>
         <View style={styles.viewClassCode}>
           <Ionicons style={styles.iconCode} name="qr-code-outline" size={18} />
-          <Text style={styles.txtClassCode}>LTMNC-19-24</Text>
+          <Text style={styles.txtClassCode}>{classCode}</Text>
         </View>
       </View>
       <View style={styles.viewBottom}>
@@ -61,15 +62,15 @@ export default function ClassCard({ classInfo }) {
           <View style={styles.viewInfo}>
             <Ionicons style={styles.iconInfo} name="time-outline" size={18} />
             <Text style={styles.txtInfo}>
-              {formatTimestampToHHmm(time_from)} -{" "}
-              {formatTimestampToHHmm(time_to)}
+              {formatTimestampToHHmm(timeFrom)} -{" "}
+              {formatTimestampToHHmm(timeTo)}
             </Text>
           </View>
         </View>
-        {false && (
+        {lecturer != null && (
           <View style={styles.viewLectucer}>
             <Ionicons style={styles.iconInfo} name="person-outline" size={18} />
-            <Text style={styles.txtInfo}>{lectucer}</Text>
+            <Text style={styles.txtInfo}>{lecturer}</Text>
           </View>
         )}
       </View>

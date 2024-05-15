@@ -8,13 +8,21 @@ export default function DetailClass() {
 
   const route = useRoute();
   const navigation = useNavigation();
+  const [formData, setFormData] = useState(null);
 
   const receivedData = route.params?.data || null;
 
   const initFormData = {
     name: receivedData["name"],
+    classId: receivedData["classId"],
     room: receivedData["room"],
-    dayofweek: receivedData["day_of_week"],
+    roomId: receivedData["roomId"],
+    classCode: receivedData["classCode"],
+    dayOfWeek: receivedData["dayOfWeek"],
+    dateFrom: receivedData["dateFrom"],
+    dateTo: receivedData["dateTo"],
+    timeFrom: receivedData["timeFrom"],
+    timeTo: receivedData["timeTo"],
   };
 
   return (
@@ -22,7 +30,10 @@ export default function DetailClass() {
       <TouchableOpacity onPress={() => navigation.navigate("ClassList")}>
         <Text>BACK</Text>
       </TouchableOpacity>
-      <InfoClass initFormData={initFormData} />
+      <InfoClass
+        initFormData={initFormData}
+        onFormSubmit={(data) => setFormData(data)}
+      />
     </View>
   );
 }

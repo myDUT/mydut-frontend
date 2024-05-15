@@ -23,6 +23,7 @@ export default function AddNewClass() {
   };
 
   const handleSaveClass = () => {
+    // TODO: call API save class
     console.log("🚀 ~ AddNewClass ~ formData:", formData);
     navigation.navigate("ClassList");
   };

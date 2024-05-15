@@ -13,8 +13,8 @@ import { CheckBox } from "rn-inkpad";
 import React, { useEffect, useState } from "react";
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { FetchRole } from "../../api/role_api";
-import { AddNewUser } from "../../api/user_api";
+import { fetchRole } from "../../api/role_api";
+import { addNewUser } from "../../api/user_api";
 import SplashScreen from "../SplashScreen";
 import Toast from "react-native-toast-message";
 
@@ -36,7 +36,7 @@ export default function Register() {
   });
 
   useEffect(() => {
-    FetchRole()
+    fetchRole()
       .then((response) => {
         return setRoles(response.data.data);
       })
@@ -70,7 +70,7 @@ export default function Register() {
     const data = { ...values, roleId };
     delete data.isLecturer;
 
-    await AddNewUser(data)
+    await addNewUser(data)
       .then((response) => {
         if (response.status == 200) {
           showSuccessCreateUserToast();
