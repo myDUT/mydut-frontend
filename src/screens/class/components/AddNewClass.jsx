@@ -11,21 +11,53 @@ import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import InfoClass from "./InfoClass";
+import { addNewClass } from "../../../api/class_api";
+import Toast from "react-native-toast-message";
+import SplashScreen from "../../SplashScreen";
 
 export default function AddNewClass() {
   const navigation = useNavigation();
   const { top: paddingTop } = useSafeAreaInsets();
 
   const [formData, setFormData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleBackdropPress = () => {
     Keyboard.dismiss(); // Hide keyboard
   };
 
-  const handleSaveClass = () => {
+  const handleSaveClass = async () => {
     // TODO: call API save class
-    console.log("🚀 ~ AddNewClass ~ formData:", formData);
-    navigation.navigate("ClassList");
+    const showSuccessCreateUserToast = () => {
+      Toast.show({
+        type: "success",
+        text1: "Notification",
+        text2: "Create new class successfully.",
+      });
+    };
+
+    const showFailedCreateUser = () => {
+      Toast.show({
+        type: "error",
+        text1: "Notification",
+        text2: "An error has occurred. Please try again later.",
+      });
+    };
+
+    try {
+      setIsLoading(true);
+      const result = await addNewClass(formData);
+
+      result.data.success === true
+        ? showSuccessCreateUserToast()
+        : showFailedCreateUser();
+
+      navigation.navigate("ClassList");
+    } catch (error) {
+      showFailedCreateUser();
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -75,6 +107,7 @@ export default function AddNewClass() {
           </Text>
         </LinearGradient>
       </TouchableOpacity>
+      <SplashScreen isDisplay={isLoading} />
     </TouchableOpacity>
   );
 }

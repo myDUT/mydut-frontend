@@ -30,9 +30,7 @@ export default function Class() {
       .then((response) => {
         return setClassListByUser(transformList(response.data.data));
       })
-      .catch((error) => {
-        console.log("🚀 ~ useEffect ~ error:", error);
-      });
+      .catch((error) => {});
 
     const getRoleName = async () => {
       try {
