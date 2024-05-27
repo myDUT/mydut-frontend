@@ -18,17 +18,47 @@ import CurrentDate from "./components/CurrentDate";
 import { getLessonList } from "../../mock/data_mock";
 import { formatTimestampToHHmm } from "../../utils/DateUtils";
 import * as Location from "expo-location";
+import { ROLE } from "../../enum/RoleEnum";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getLessonInADay } from "../../api/lesson_api";
+import EmptyListComponent from "./components/EmptyListComponent";
 
 export default function Home() {
+  const { top: paddingTop } = useSafeAreaInsets();
+
   const [selectedDate, setSelectedDate] = useState(
     moment().format("YYYY-MM-DD")
   );
   const [modalCheckInVisible, setModalCheckInVisible] = useState(false);
+  const [modalImagePicker, setModalImagePicker] = useState(false);
   const [location, setLocation] = useState(null);
+  const [roleName, setRoleName] = useState("");
+  const [lessonList, setLessonList] = useState([]);
 
   useEffect(() => {
     getLocation();
+    getRoleName();
   }, []);
+
+  useEffect(() => {
+    fetchAvailableLessonList(selectedDate);
+    // console.log("🚀 ~ useEffect ~ lessonList:", lessonList)
+  }, [selectedDate]);
+
+  // useEffect(() => {
+  //   console.log("🚀 ~ useEffect ~ lessonList:", lessonList);
+  // }, [lessonList]);
+
+  const fetchAvailableLessonList = async (time) => {
+    try {
+      const result = await getLessonInADay(
+        moment(time, "YYYY-MM-DD").valueOf()
+      );
+      if (result.data.success === true) {
+        setLessonList(result?.data?.data || []);
+      }
+    } catch (error) {}
+  };
 
   const getDaysOfWeek = () => {
     const today = new Date();
@@ -62,52 +92,36 @@ export default function Home() {
     }
   };
 
+  const getRoleName = async () => {
+    try {
+      const role = await AsyncStorage.getItem("roleName");
+      setRoleName(role);
+    } catch (error) {}
+  };
+
   const handleDayPress = (day) => {
     setSelectedDate(day);
   };
 
-  const renderModalCheckIn = () => {
-    const handleCheckIn = () => {
-      if (location && location.coords) {
-        const { latitude, longitude } = location.coords;
-        console.log("Latitude:", latitude);
-        console.log("Longitude:", longitude);
-      } else {
-        console.log("Location information is not available.");
-        Alert.alert(
-          "Please enable location service in Settings to be able to check in."
-        );
-      }
+  const handleCheckIn = () => {
+    if (location && location.coords) {
+      const { latitude, longitude } = location.coords;
+      console.log("Latitude:", latitude);
+      console.log("Longitude:", longitude);
+    } else {
+      console.log("Location information is not available.");
+      Alert.alert(
+        "Please enable location service in Settings to be able to check in."
+      );
+    }
 
-      setModalCheckInVisible(!modalCheckInVisible);
-    };
-
-    return (
-      <Modal
-        isVisible={modalCheckInVisible}
-        onBackdropPress={() => setModalCheckInVisible(!modalCheckInVisible)}
-        style={styles.modalCheckIn}
-        // customBackdrop={<View style={{ flex: 1, height: 200 }} />}
-      >
-        <View style={styles.viewModalCheckIn}>
-          <Text style={styles.txtModalCheckIn}>
-            Are you sure to check in at {formatTimestampToHHmm(moment())}?
-          </Text>
-          <TouchableOpacity
-            onPress={() => handleCheckIn()}
-            style={styles.btnCheckIn}
-          >
-            <Text style={{ fontSize: 18, fontWeight: "600", color: "white" }}>
-              Check-in
-            </Text>
-            {/* <ActivityIndicator size={"large"} color={"red"} /> */}
-          </TouchableOpacity>
-        </View>
-      </Modal>
-    );
+    setModalCheckInVisible(!modalCheckInVisible);
   };
 
-  const { top: paddingTop } = useSafeAreaInsets();
+  const openImagePicker = () => {
+    setModalCheckInVisible(!modalCheckInVisible);
+    setModalImagePicker(!modalImagePicker);
+  };
 
   const DayItem = (date) => {
     const formattedDate = moment(date.day).format("DD");
@@ -172,7 +186,7 @@ export default function Home() {
         <FlatList
           scrollEnabled={true}
           vertical
-          data={getLessonList()}
+          data={lessonList}
           renderItem={({ item }) => (
             <View
               style={{
@@ -193,9 +207,86 @@ export default function Home() {
             </View>
           )}
           keyExtractor={(item, index) => index.toString()}
+          ListEmptyComponent={<EmptyListComponent />}
         />
       </View>
-      {renderModalCheckIn()}
+      {roleName === ROLE.STUDENT && (
+        <Modal
+          isVisible={modalCheckInVisible}
+          onBackdropPress={() => setModalCheckInVisible(!modalCheckInVisible)}
+          style={styles.modalCheckIn}
+          // customBackdrop={<View style={{ flex: 1, height: 200 }} />}
+        >
+          <View style={[styles.viewModalCheckIn, { flex: 0.2 }]}>
+            <Text style={styles.txtModalCheckIn}>
+              Are you sure to check in at {formatTimestampToHHmm(moment())}?
+            </Text>
+            <TouchableOpacity
+              onPress={() => handleCheckIn()}
+              style={styles.btnCheckIn}
+            >
+              <Text style={{ fontSize: 18, fontWeight: "600", color: "white" }}>
+                CHECK-IN
+              </Text>
+              {/* <ActivityIndicator size={"large"} color={"red"} /> */}
+            </TouchableOpacity>
+          </View>
+        </Modal>
+      )}
+      {roleName === ROLE.TEACHER && (
+        <>
+          <Modal
+            isVisible={modalCheckInVisible}
+            onBackdropPress={() => setModalCheckInVisible(!modalCheckInVisible)}
+            style={styles.modalCheckIn}
+            // customBackdrop={<View style={{ flex: 1, height: 200 }} />}
+          >
+            <View style={[styles.viewModalCheckIn, { flex: 0.3 }]}>
+              <Text style={styles.txtModalCheckIn}>
+                Are you sure to open check-in form?
+              </Text>
+              <TouchableOpacity
+                onPress={() => handleCheckIn()}
+                style={styles.btnCheckIn}
+              >
+                <Text
+                  style={{ fontSize: 18, fontWeight: "600", color: "white" }}
+                >
+                  OPEN
+                </Text>
+                {/* <ActivityIndicator size={"large"} color={"red"} /> */}
+              </TouchableOpacity>
+              <Text style={[styles.txtOrText]}>- OR -</Text>
+              <TouchableOpacity
+                onPress={() => openImagePicker()}
+                style={styles.btnCheckIn}
+              >
+                <Text
+                  style={{ fontSize: 18, fontWeight: "500", color: "white" }}
+                >
+                  Enhanced Attendance Tracking
+                </Text>
+                {/* <ActivityIndicator size={"large"} color={"red"} /> */}
+              </TouchableOpacity>
+            </View>
+          </Modal>
+          <Modal
+            isVisible={modalImagePicker}
+            onBackdropPress={() => setModalImagePicker(!modalImagePicker)}
+            style={styles.modalImagePicker}
+            // customBackdrop={<View style={{ flex: 1, height: 200 }} />}
+          >
+            <View style={styles.viewModalImagePicker}>
+              <Text>Hello</Text>
+              <TouchableOpacity
+                onPress={() => setModalImagePicker(!modalImagePicker)}
+              >
+                <Text>Close</Text>
+              </TouchableOpacity>
+            </View>
+          </Modal>
+        </>
+      )}
     </View>
   );
 }
@@ -275,7 +366,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   viewModalCheckIn: {
-    flex: 0.2,
+    // flex: 0.2,
     justifyContent: "space-around",
     alignItems: "center",
     backgroundColor: "white",
@@ -284,16 +375,34 @@ const styles = StyleSheet.create({
   btnCheckIn: {
     justifyContent: "center",
     alignItems: "center",
-    height: 40,
-    width: 150,
-    // borderWidth: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 25,
     borderRadius: 8,
     backgroundColor: "#f38933dd",
     // marginBottom: 30,
+    // padding: 30,
   },
   txtModalCheckIn: {
     fontSize: 18,
-    marginTop: 20,
+    marginTop: 16,
     fontWeight: "500",
+  },
+  txtOrText: {
+    marginTop: -25,
+    marginBottom: -25,
+    fontSize: 16,
+    fontWeight: "400",
+    color: "#555555",
+  },
+
+  // Modal image picker style
+  modalImagePicker: {
+    justifyContent: "flex-end",
+    margin: 0,
+  },
+  viewModalImagePicker: {
+    backgroundColor: "white",
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
   },
 });

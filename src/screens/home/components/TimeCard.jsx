@@ -3,14 +3,13 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { formatTimestampToHHmm } from "../../../utils/DateUtils";
 
 export default function TimeCard({ timeClass }) {
+  const { datetimeFrom, datetimeTo } = timeClass;
   return (
     <View style={styles.viewTimeCard}>
       <Text style={styles.txtTimeFrom}>
-        {formatTimestampToHHmm(timeClass.time_from)}
+        {formatTimestampToHHmm(datetimeFrom)}
       </Text>
-      <Text style={styles.txtTimeTo}>
-        {formatTimestampToHHmm(timeClass.time_to)}
-      </Text>
+      <Text style={styles.txtTimeTo}>{formatTimestampToHHmm(datetimeTo)}</Text>
     </View>
   );
 }

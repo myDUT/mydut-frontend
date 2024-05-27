@@ -3,26 +3,30 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { compareWithCurrentTime } from "../../../utils/DateUtils";
 
 export default function LessonCard({ infoClass, onPress }) {
-  const getColorText = compareWithCurrentTime(
-    infoClass.time_from,
-    infoClass.time_to
-  )
+  const {
+    datetimeFrom,
+    datetimeTo,
+    className,
+    lecturer,
+    roomName,
+    presentStudent,
+    totalStudent,
+  } = infoClass;
+  
+  const getColorText = compareWithCurrentTime(datetimeFrom, datetimeTo)
     ? { color: "#FFFFFF" }
     : { color: "#212525" };
 
-  const getColorIcon = compareWithCurrentTime(
-    infoClass.time_from,
-    infoClass.time_to
-  )
+  const getColorIcon = compareWithCurrentTime(datetimeFrom, datetimeTo)
     ? "#FFFFFF"
     : "#212525";
 
   return (
     <TouchableOpacity
-      disabled={!compareWithCurrentTime(infoClass.time_from, infoClass.time_to)}
+      disabled={!compareWithCurrentTime(datetimeFrom, datetimeTo)}
       style={[
         styles.lessonCard,
-        compareWithCurrentTime(infoClass.time_from, infoClass.time_to)
+        compareWithCurrentTime(datetimeFrom, datetimeTo)
           ? { backgroundColor: "#4DC591" }
           : { backgroundColor: "#e0e0e0c5" },
       ]}
@@ -34,7 +38,7 @@ export default function LessonCard({ infoClass, onPress }) {
           ellipsizeMode="tail"
           style={[styles.txtClassName, getColorText]}
         >
-          {infoClass.name}
+          {className}
         </Text>
         <View style={styles.viewAttendence}>
           <Ionicons
@@ -44,8 +48,7 @@ export default function LessonCard({ infoClass, onPress }) {
             size={18}
           />
           <Text style={[styles.txtAttendence, getColorText]}>
-            {infoClass.present_student ? infoClass.present_student : "__ "}/
-            {infoClass.total_student}
+            {presentStudent || 0}/{totalStudent}
           </Text>
         </View>
       </View>
@@ -57,7 +60,7 @@ export default function LessonCard({ infoClass, onPress }) {
             name="location-outline"
             size={18}
           />
-          <Text style={[styles.txtInfo, getColorText]}>{infoClass.room}</Text>
+          <Text style={[styles.txtInfo, getColorText]}>{roomName}</Text>
         </View>
         <View style={styles.viewInfo}>
           <Ionicons
@@ -67,7 +70,7 @@ export default function LessonCard({ infoClass, onPress }) {
             size={18}
           />
           <Text style={[styles.txtInfo, getColorText]}>
-            {infoClass.lectucer}
+            {lecturer || "DUT's Lecturer"}
           </Text>
         </View>
       </View>

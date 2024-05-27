@@ -3,15 +3,12 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 
-export default function NewClassBtn() {
-  const navigation = useNavigation();
+export default function NewClassBtn(props) {
   return (
     <TouchableOpacity
       style={styles.btnAddClass}
       activeOpacity={0.7}
-      onPress={() => {
-        navigation.navigate("AddNewClass");
-      }}
+      onPress={props.onPress}
     >
       <Ionicons
         name="add-outline"

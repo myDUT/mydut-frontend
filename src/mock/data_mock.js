@@ -1,13 +1,13 @@
 export const getLessonList = () => {
   return [
     {
-      name: "Lap trinh mang",
+      name: "Hoc may va ung dung",
       room: "F304",
       lectucer: "TS.Pham Cong Thang",
       total_student: 45,
       present_student: null,
-      time_from: 1714653935000,
-      time_to: 1714693535000,
+      time_from: 1716440415000,
+      time_to: 1717153698000,
       day_of_week: "Monday",
       need_check_in: true,
     },
