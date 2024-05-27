@@ -1,6 +1,8 @@
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { compareWithCurrentTime } from "../../../utils/DateUtils";
+import { useEffect, useState } from "react";
+import { ROLE } from "../../../enum/RoleEnum";
 
 export default function LessonCard({ infoClass, onPress }) {
   const {
@@ -11,8 +13,10 @@ export default function LessonCard({ infoClass, onPress }) {
     roomName,
     presentStudent,
     totalStudent,
+    lessonId,
+    isEnableCheckIn,
   } = infoClass;
-  
+
   const getColorText = compareWithCurrentTime(datetimeFrom, datetimeTo)
     ? { color: "#FFFFFF" }
     : { color: "#212525" };
@@ -24,13 +28,14 @@ export default function LessonCard({ infoClass, onPress }) {
   return (
     <TouchableOpacity
       disabled={!compareWithCurrentTime(datetimeFrom, datetimeTo)}
+      // disabled={false}
       style={[
         styles.lessonCard,
         compareWithCurrentTime(datetimeFrom, datetimeTo)
           ? { backgroundColor: "#4DC591" }
           : { backgroundColor: "#e0e0e0c5" },
       ]}
-      onPress={onPress}
+      onPress={() => onPress(lessonId, isEnableCheckIn)}
     >
       <View style={styles.viewHeader}>
         <Text

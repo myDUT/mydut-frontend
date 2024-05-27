@@ -1,7 +1,7 @@
 import ApiManager from "./ApiManager";
 
 export const userLogin = async (data) => {
-  console.log("🚀 ~ constuser_login= ~ data:", data);
+  // console.log("🚀 ~ constuser_login= ~ data:", data);
   try {
     const result = await ApiManager("/login", {
       method: "POST",

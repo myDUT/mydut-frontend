@@ -9,7 +9,7 @@ export function formatTimestamp(timestamp, format) {
   return moment(timestamp).format(format);
 }
 export function compareWithCurrentTime(timeFrom, timeTo) {
-  if (moment() >= timeFrom && moment() <= timeTo) {
+  if (moment().format() >= timeFrom && moment().format() <= timeTo) {
     return true;
   } else {
     return false;

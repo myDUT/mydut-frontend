@@ -51,6 +51,7 @@ export const checkIn = async (data) => {
       },
       data: data,
     });
+    return result;
   } catch (error) {
     return error.response.data;
   }

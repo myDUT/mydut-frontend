@@ -1,7 +1,11 @@
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import Navigator from "./src/navigator";
-import Toast, { BaseToast, ErrorToast, SuccessToast } from "react-native-toast-message";
+import Toast, {
+  BaseToast,
+  ErrorToast,
+  SuccessToast,
+} from "react-native-toast-message";
 
 export default function App() {
   return (
@@ -29,7 +33,7 @@ const toastConfig = {
         fontSize: 15,
       }}
       text2Style={{
-        fontSize: 10,
+        fontSize: 12,
       }}
     />
   ),

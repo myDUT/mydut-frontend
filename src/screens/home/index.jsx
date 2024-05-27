@@ -1,5 +1,5 @@
 import moment from "moment";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -22,6 +22,9 @@ import { ROLE } from "../../enum/RoleEnum";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getLessonInADay } from "../../api/lesson_api";
 import EmptyListComponent from "./components/EmptyListComponent";
+import { checkIn, closeCheckIn, openCheckIn } from "../../api/checkin_api";
+import Toast from "react-native-toast-message";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function Home() {
   const { top: paddingTop } = useSafeAreaInsets();
@@ -34,6 +37,11 @@ export default function Home() {
   const [location, setLocation] = useState(null);
   const [roleName, setRoleName] = useState("");
   const [lessonList, setLessonList] = useState([]);
+  const [currentLessonCheckIn, setCurrectLessonCheckIn] = useState({
+    lessonId: "",
+    isEnableCheckIn: false,
+  });
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     getLocation();
@@ -43,11 +51,15 @@ export default function Home() {
   useEffect(() => {
     fetchAvailableLessonList(selectedDate);
     // console.log("🚀 ~ useEffect ~ lessonList:", lessonList)
-  }, [selectedDate]);
+  }, [selectedDate, modalCheckInVisible]);
 
   // useEffect(() => {
   //   console.log("🚀 ~ useEffect ~ lessonList:", lessonList);
   // }, [lessonList]);
+
+  useEffect(() => {
+    console.log("Tracking current lesson check in:", currentLessonCheckIn);
+  }, [currentLessonCheckIn]);
 
   const fetchAvailableLessonList = async (time) => {
     try {
@@ -103,19 +115,133 @@ export default function Home() {
     setSelectedDate(day);
   };
 
-  const handleCheckIn = () => {
+  const handleCheckIn = async () => {
+    setIsLoading(true);
     if (location && location.coords) {
       const { latitude, longitude } = location.coords;
       console.log("Latitude:", latitude);
       console.log("Longitude:", longitude);
+      const coordinate = {
+        latitude: latitude,
+        longitude: longitude,
+      };
+      const data = {
+        lessonId: currentLessonCheckIn.lessonId,
+        coordinate: coordinate,
+      };
+      try {
+        const result = await checkIn(data);
+        if (result.data.success === true) {
+          showSuccessCheckInToast();
+        } else {
+          showFailedCheckIn();
+        }
+      } catch (error) {
+        showErrorCheckInToast();
+      } finally {
+        setModalCheckInVisible(false);
+      }
     } else {
       console.log("Location information is not available.");
       Alert.alert(
         "Please enable location service in Settings to be able to check in."
       );
     }
+    setIsLoading(false);
+    setModalCheckInVisible(false);
+  };
 
-    setModalCheckInVisible(!modalCheckInVisible);
+  const handleManageCheckIn = async (isEnableCheckIn) => {
+    setIsLoading(true);
+    if (isEnableCheckIn === false) {
+      // open check in form
+      if (location && location.coords) {
+        const { latitude, longitude } = location.coords;
+        console.log("Latitude:", latitude);
+        console.log("Longitude:", longitude);
+        const coordinate = {
+          latitude: latitude,
+          longitude: longitude,
+        };
+        const data = {
+          lessonId: currentLessonCheckIn.lessonId,
+          coordinate: coordinate,
+        };
+        try {
+          const result = await openCheckIn(data);
+          if (result.data.success === true) {
+            showSuccessOpenCheckInToast();
+          } else {
+            showErrorCheckInToast();
+          }
+        } catch (error) {
+          showErrorCheckInToast();
+        } finally {
+          setModalCheckInVisible(false);
+        }
+      } else {
+        console.log("Location information is not available.");
+        Alert.alert(
+          "Please enable location service in Settings to be able to check in."
+        );
+      }
+      setIsLoading(false);
+      setModalCheckInVisible(false);
+    } else {
+      // lock check in form
+      try {
+        const result = await closeCheckIn(currentLessonCheckIn.lessonId);
+        if (result.data.success === true) {
+          showSuccessLockCheckInToast();
+        } else {
+          showErrorCheckInToast();
+        }
+      } catch (error) {
+        showErrorCheckInToast();
+      } finally {
+        setIsLoading(false);
+        setModalCheckInVisible(false);
+      }
+    }
+  };
+
+  const showErrorCheckInToast = () => {
+    Toast.show({
+      type: "error",
+      text1: "Notification",
+      text2: "An error has occurred. Please try again later.",
+    });
+  };
+
+  const showFailedCheckIn = () => {
+    Toast.show({
+      type: "error",
+      text1: "Notification",
+      text2: "Check-in failed due to the form being locked.",
+    });
+  };
+
+  const showSuccessCheckInToast = () => {
+    Toast.show({
+      type: "success",
+      text1: "Notification",
+      text2: "Check-in successfully.",
+    });
+  };
+
+  const showSuccessOpenCheckInToast = () => {
+    Toast.show({
+      type: "success",
+      text1: "Notification",
+      text2: "Opened check-in form.",
+    });
+  };
+  const showSuccessLockCheckInToast = () => {
+    Toast.show({
+      type: "success",
+      text1: "Notification",
+      text2: "Locked check-in form.",
+    });
   };
 
   const openImagePicker = () => {
@@ -198,8 +324,12 @@ export default function Home() {
               </View>
               <View style={{ flex: 3 }}>
                 <LessonCard
-                  onPress={() => {
+                  onPress={(lessonId, isEnableCheckIn) => {
                     setModalCheckInVisible(true);
+                    setCurrectLessonCheckIn({
+                      lessonId: lessonId,
+                      isEnableCheckIn: isEnableCheckIn,
+                    });
                   }}
                   infoClass={item}
                 />
@@ -213,7 +343,7 @@ export default function Home() {
       {roleName === ROLE.STUDENT && (
         <Modal
           isVisible={modalCheckInVisible}
-          onBackdropPress={() => setModalCheckInVisible(!modalCheckInVisible)}
+          onBackdropPress={() => setModalCheckInVisible(false)}
           style={styles.modalCheckIn}
           // customBackdrop={<View style={{ flex: 1, height: 200 }} />}
         >
@@ -243,16 +373,20 @@ export default function Home() {
           >
             <View style={[styles.viewModalCheckIn, { flex: 0.3 }]}>
               <Text style={styles.txtModalCheckIn}>
-                Are you sure to open check-in form?
+                Are you sure to{" "}
+                {currentLessonCheckIn.isEnableCheckIn ? "lock" : "open"}{" "}
+                check-in form?
               </Text>
               <TouchableOpacity
-                onPress={() => handleCheckIn()}
+                onPress={() =>
+                  handleManageCheckIn(currentLessonCheckIn.isEnableCheckIn)
+                }
                 style={styles.btnCheckIn}
               >
                 <Text
                   style={{ fontSize: 18, fontWeight: "600", color: "white" }}
                 >
-                  OPEN
+                  {currentLessonCheckIn.isEnableCheckIn ? "LOCK" : "OPEN"}
                 </Text>
                 {/* <ActivityIndicator size={"large"} color={"red"} /> */}
               </TouchableOpacity>
