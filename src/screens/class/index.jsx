@@ -117,23 +117,26 @@ export default function Class() {
       Toast.show({
         type: "success",
         text1: "Notification",
-        text2: "Enroll successfully. Now waiting for the lecturer's approval.",
+        text2: "Successfully. Please wait for the lecturer's approval.",
       });
     };
 
-    const showFailedEnroll = () => {
+    const showFailedEnroll = (message) => {
       Toast.show({
         type: "error",
         text1: "Notification",
-        text2: "An error has occurred. Please try again later.",
+        text2: message || "An error has occurred. Please try again later.",
       });
     };
+
     const handleEnroll = async () => {
       try {
         setIsLoading(true);
         const result = await enrollInClass({ classCode: classCode });
 
-        result.data.success === true ? showSuccessEnroll() : showFailedEnroll();
+        result.data.success === true
+          ? showSuccessEnroll()
+          : showFailedEnroll(result?.data?.message);
         setModalEnrollClassVisible(!modalEnrollClassVisible);
       } catch (error) {
         setModalEnrollClassVisible(!modalEnrollClassVisible);
@@ -146,9 +149,10 @@ export default function Class() {
     return (
       <Modal
         isVisible={modalEnrollClassVisible}
-        onBackdropPress={() =>
-          setModalEnrollClassVisible(!modalEnrollClassVisible)
-        }
+        onBackdropPress={() => {
+          setClassCode("");
+          setModalEnrollClassVisible(!modalEnrollClassVisible);
+        }}
         style={styles.modalEnrollClass}
         // customBackdrop={<View style={{ flex: 1, height: 200 }} />}
       >

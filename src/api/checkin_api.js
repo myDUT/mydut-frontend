@@ -15,7 +15,7 @@ export const openCheckIn = async (data) => {
     });
     return result;
   } catch (error) {
-    return error.response.data;
+    return error.response;
   }
 };
 
@@ -35,7 +35,7 @@ export const closeCheckIn = async (lessonId) => {
     );
     return result;
   } catch (error) {
-    return error.response.data;
+    return error.response;
   }
 };
 
@@ -53,6 +53,6 @@ export const checkIn = async (data) => {
     });
     return result;
   } catch (error) {
-    return error.response.data;
+    return error.response;
   }
 };

@@ -15,7 +15,6 @@ export const fetchRoom = async () => {
     });
     return result;
   } catch (error) {
-    // console.log("🚀 ~ constuser_login= ~ error:", error);
-    return error.response.data;
+    return error.response;
   }
 };

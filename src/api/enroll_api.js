@@ -16,7 +16,6 @@ export const enrollInClass = async (data) => {
     });
     return result;
   } catch (error) {
-    // console.log("🚀 ~ constuser_login= ~ error:", error);
-    return error.response.data;
+    return error.response;
   }
 };

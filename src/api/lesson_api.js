@@ -14,6 +14,6 @@ export const getLessonInADay = async (time) => {
     });
     return result;
   } catch (error) {
-    return error.response.data;
+    return error.response;
   }
 };
