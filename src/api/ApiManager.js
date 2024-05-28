@@ -8,4 +8,6 @@ const ApiManager = axios.create({
   withCredentials: true,
 });
 
+// result.data = error.response
+
 export default ApiManager;

@@ -162,6 +162,7 @@ export default function InfoClass({ onFormSubmit, initFormData }) {
               styles.dropdown,
               isFocusDDDay && { borderColor: "#4DC591" },
             ]}
+            disable={initFormData}
             placeholderStyle={styles.placeholderStyle}
             selectedTextStyle={styles.selectedTextStyle}
             inputSearchStyle={styles.inputSearchStyle}
@@ -193,6 +194,7 @@ export default function InfoClass({ onFormSubmit, initFormData }) {
         <Text style={styles.txtLabel}>Time</Text>
         <View style={styles.viewTime}>
           <TouchableOpacity
+            disabled={!!initFormData}
             style={styles.btnDateFrom}
             onPress={() => showPicker("time", "From")}
           >
@@ -212,6 +214,7 @@ export default function InfoClass({ onFormSubmit, initFormData }) {
             </View>
           </TouchableOpacity>
           <TouchableOpacity
+            disabled={!!initFormData}
             style={styles.btnDateTo}
             onPress={() => showPicker("time", "To")}
           >
@@ -236,6 +239,7 @@ export default function InfoClass({ onFormSubmit, initFormData }) {
         <Text style={styles.txtLabel}>Date</Text>
         <View style={styles.viewTime}>
           <TouchableOpacity
+            disabled={!!initFormData}
             style={styles.btnDateFrom}
             onPress={() => showPicker("date", "From")}
           >
@@ -255,6 +259,7 @@ export default function InfoClass({ onFormSubmit, initFormData }) {
             </View>
           </TouchableOpacity>
           <TouchableOpacity
+            disabled={!!initFormData}
             style={styles.btnDateTo}
             onPress={() => showPicker("date", "To")}
           >

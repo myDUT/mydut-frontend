@@ -109,6 +109,26 @@ export default function Class() {
       });
     });
 
+    // Sort the data for each day by timeFrom, then by timeTo if timeFrom is equal
+    Object.keys(result).forEach((dayOfWeek) => {
+      result[dayOfWeek].data.sort((a, b) => {
+        const timeFromA = moment(a.timeFrom).format("HH:mm");
+        const timeFromB = moment(b.timeFrom).format("HH:mm");
+
+        if (timeFromA < timeFromB) return -1;
+        if (timeFromA > timeFromB) return 1;
+
+        // If timeFrom same, compare timeTo
+        const timeToA = moment(a.timeTo).format("HH:mm");
+        const timeToB = moment(b.timeTo).format("HH:mm");
+
+        if (timeToA < timeToB) return -1;
+        if (timeToA > timeToB) return 1;
+
+        return 0;
+      });
+    });
+
     return Object.values(result);
   };
 

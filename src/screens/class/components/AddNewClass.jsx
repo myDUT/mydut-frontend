@@ -103,7 +103,7 @@ export default function AddNewClass() {
               // letterSpacing: 0.7,
             }}
           >
-            Save
+            Create
           </Text>
         </LinearGradient>
       </TouchableOpacity>

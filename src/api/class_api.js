@@ -48,3 +48,44 @@ export const addNewClass = async (data) => {
     return error.response;
   }
 };
+
+export const updateClass = async (data) => {
+  try {
+    const accessToken = await AsyncStorage.getItem("accessToken");
+
+    const updateClass = {
+      ...(data?.roomId !== undefined && { roomId: data.roomId }),
+      ...(data?.classCode !== undefined && { classCode: data.classCode }),
+      ...(data?.name !== undefined && { name: data.name }),
+    };
+
+    const result = await ApiManager(`/classes/${data.classId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      data: updateClass,
+    });
+    return result;
+  } catch (error) {
+    return error.response;
+  }
+};
+
+export const deleteClass = async (classId) => {
+  try {
+    const accessToken = await AsyncStorage.getItem("accessToken");
+
+    const result = await ApiManager(`/classes/${classId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    return result;
+  } catch (error) {
+    return error.response;
+  }
+};
