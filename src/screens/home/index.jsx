@@ -62,6 +62,7 @@ export default function Home() {
   }, [currentLessonCheckIn]);
 
   const fetchAvailableLessonList = async (time) => {
+    setIsLoading(true);
     try {
       const result = await getLessonInADay(
         moment(time, "YYYY-MM-DD").valueOf()
@@ -69,7 +70,10 @@ export default function Home() {
       if (result.data.success === true) {
         setLessonList(result?.data?.data || []);
       }
-    } catch (error) {}
+    } catch (error) {
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const getDaysOfWeek = () => {
@@ -312,6 +316,8 @@ export default function Home() {
         <FlatList
           scrollEnabled={true}
           vertical
+          onRefresh={() => fetchAvailableLessonList(selectedDate)}
+          refreshing={isLoading}
           data={lessonList}
           renderItem={({ item }) => (
             <View

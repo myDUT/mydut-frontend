@@ -65,7 +65,7 @@ export default function Class() {
       if (result.data.success === true) {
         setClassListByUser(transformList(result.data.data));
       } else {
-        console.log("Error when creat new class", result.data);
+        console.log("Error when view class", result.data);
       }
     } catch (error) {}
   };
