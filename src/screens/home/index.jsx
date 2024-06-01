@@ -15,7 +15,6 @@ import Header from "./components/Header";
 import LessonCard from "./components/LessonCard";
 import TimeCard from "./components/TimeCard";
 import CurrentDate from "./components/CurrentDate";
-import { getLessonList } from "../../mock/data_mock";
 import { formatTimestampToHHmm } from "../../utils/DateUtils";
 import * as Location from "expo-location";
 import { ROLE } from "../../enum/RoleEnum";
@@ -316,8 +315,8 @@ export default function Home() {
         <FlatList
           scrollEnabled={true}
           vertical
-          onRefresh={() => fetchAvailableLessonList(selectedDate)}
-          refreshing={isLoading}
+          // onRefresh={() => fetchAvailableLessonList(selectedDate)}
+          // refreshing={isLoading}
           data={lessonList}
           renderItem={({ item }) => (
             <View

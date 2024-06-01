@@ -10,7 +10,6 @@ import {
 import Header from "./components/Header";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import ClassCard from "./components/ClassCard";
-import { getClassList } from "../../mock/data_mock";
 import NewClassBtn from "./components/NewClassBtn";
 import { useCallback, useEffect, useState } from "react";
 import { getListClassByUser } from "../../api/class_api";
