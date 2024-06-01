@@ -12,10 +12,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 
 import InfoClass from "./InfoClass";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SplashScreen from "../../SplashScreen";
 import { deleteClass, updateClass } from "../../../api/class_api";
 import Toast from "react-native-toast-message";
+import { getNumberWaitingEnrollment } from "../../../api/enroll_api";
 
 export default function DetailClass() {
   const { top: paddingTop } = useSafeAreaInsets();
@@ -23,9 +24,14 @@ export default function DetailClass() {
   const route = useRoute();
   const navigation = useNavigation();
   const [formData, setFormData] = useState(null);
+  const [numberWaitingEnrollment, setNumberWaitingEnrollment] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const receivedData = route.params?.data || null;
+
+  useEffect(() => {
+    fetchNumberWaitingEnrollment();
+  }, []);
 
   const handleBackdropPress = () => {
     Keyboard.dismiss();
@@ -45,6 +51,21 @@ export default function DetailClass() {
       text1: "Notification",
       text2: msg || "Failed.",
     });
+  };
+
+  const fetchNumberWaitingEnrollment = async () => {
+    try {
+      const classId = receivedData.classId;
+      const result = await getNumberWaitingEnrollment(classId);
+      if (result.data.success === true) {
+        setNumberWaitingEnrollment(result?.data?.data || null);
+      } else {
+        console.log(
+          "Error when fetch number waiting enrollment in class",
+          result.data
+        );
+      }
+    } catch (error) {}
   };
 
   const handleUpdateClass = () => {
@@ -168,7 +189,12 @@ export default function DetailClass() {
           <View style={styles.qrcodeView}></View>
           <View style={styles.listFuncView}>
             <View style={styles.listView}>
-              <TouchableOpacity style={styles.btnViewList}>
+              <TouchableOpacity
+                style={styles.btnViewList}
+                onPress={() =>
+                  navigation.navigate("StudentList", { data: formData.classId })
+                }
+              >
                 <Ionicons
                   name="people-outline"
                   size={18}
@@ -176,6 +202,12 @@ export default function DetailClass() {
                   style={{ fontWeight: "600" }}
                 />
                 <Text style={styles.btnText}>View Student</Text>
+                {!!numberWaitingEnrollment && (
+                  <Text style={styles.txtNumberWaittingEnrollment}>
+                    {numberWaitingEnrollment}
+                  </Text>
+                )}
+
                 <Ionicons
                   name="arrow-forward-outline"
                   size={18}
@@ -298,5 +330,16 @@ const styles = StyleSheet.create({
     flex: 1, // Take up the remaining space
     textAlign: "left", // Center the text
     paddingLeft: 8,
+  },
+  txtNumberWaittingEnrollment: {
+    backgroundColor: "#f52222",
+    color: "#fff",
+    borderRadius: 12,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    textAlign: "center",
+    fontSize: 10,
+    fontWeight: "500",
+    marginRight: 4,
   },
 });
