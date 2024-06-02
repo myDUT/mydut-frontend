@@ -1,4 +1,8 @@
-import { useNavigation, useRoute } from "@react-navigation/native";
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from "@react-navigation/native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import {
   Alert,
@@ -12,11 +16,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 
 import InfoClass from "./InfoClass";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import SplashScreen from "../../SplashScreen";
 import { deleteClass, updateClass } from "../../../api/class_api";
 import Toast from "react-native-toast-message";
 import { getNumberWaitingEnrollment } from "../../../api/enroll_api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ROLE } from "../../../enum/RoleEnum";
 
 export default function DetailClass() {
   const { top: paddingTop } = useSafeAreaInsets();
@@ -26,12 +32,20 @@ export default function DetailClass() {
   const [formData, setFormData] = useState(null);
   const [numberWaitingEnrollment, setNumberWaitingEnrollment] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [roleName, setRoleName] = useState("");
 
   const receivedData = route.params?.data || null;
 
   useEffect(() => {
     fetchNumberWaitingEnrollment();
+    getRoleName();
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchNumberWaitingEnrollment();
+    }, [])
+  );
 
   const handleBackdropPress = () => {
     Keyboard.dismiss();
@@ -65,6 +79,13 @@ export default function DetailClass() {
           result.data
         );
       }
+    } catch (error) {}
+  };
+
+  const getRoleName = async () => {
+    try {
+      const roleName = await AsyncStorage.getItem("roleName");
+      setRoleName(roleName);
     } catch (error) {}
   };
 
@@ -162,19 +183,21 @@ export default function DetailClass() {
               style={{ fontWeight: "600" }}
             />
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => {
-              handleDeleteClass();
-            }}
-            style={styles.btnDelete}
-          >
-            <Ionicons
-              name="trash-outline"
-              size={28}
-              color={"#ff0000"}
-              style={{ fontWeight: "600" }}
-            />
-          </TouchableOpacity>
+          {roleName === ROLE.TEACHER && (
+            <TouchableOpacity
+              onPress={() => {
+                handleDeleteClass();
+              }}
+              style={styles.btnDelete}
+            >
+              <Ionicons
+                name="trash-outline"
+                size={28}
+                color={"#ff0000"}
+                style={{ fontWeight: "600" }}
+              />
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={styles.viewHeader}>
@@ -202,7 +225,7 @@ export default function DetailClass() {
                   style={{ fontWeight: "600" }}
                 />
                 <Text style={styles.btnText}>View Student</Text>
-                {!!numberWaitingEnrollment && (
+                {!!numberWaitingEnrollment && roleName === ROLE.TEACHER && (
                   <Text style={styles.txtNumberWaittingEnrollment}>
                     {numberWaitingEnrollment}
                   </Text>
@@ -240,14 +263,20 @@ export default function DetailClass() {
           onFormSubmit={(data) => setFormData(data)}
         />
       </View>
-      <TouchableOpacity activeOpacity={0.7} onPress={() => handleUpdateClass()}>
-        <LinearGradient
-          style={styles.btnConfirm}
-          colors={["#f78a32", "#e7b96a"]}
+      {roleName === ROLE.TEACHER && (
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={() => handleUpdateClass()}
         >
-          <Text style={styles.btnConfirmText}>Update</Text>
-        </LinearGradient>
-      </TouchableOpacity>
+          <LinearGradient
+            style={styles.btnConfirm}
+            colors={["#f78a32", "#e7b96a"]}
+          >
+            <Text style={styles.btnConfirmText}>Update</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+      )}
+
       <SplashScreen isDisplay={isLoading} />
     </TouchableOpacity>
   );

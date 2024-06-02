@@ -148,12 +148,6 @@ export default function ViewStudent() {
     );
   };
 
-  const rejectStudent = (userId, fullName) => {
-    console.log("rejected userId: " + userId);
-    const newData = studentList.filter((item) => item.userId !== userId);
-    setStudentList(newData);
-  };
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <View style={[styles.container, { paddingTop }]}>
@@ -181,6 +175,10 @@ export default function ViewStudent() {
         <View style={styles.viewHeader}>
           <View>
             <Text style={styles.txtHeader}>Student List</Text>
+            <Text style={styles.txtDesc}>
+              A list of currently enrolled students in the class and students
+              needing approval.
+            </Text>
           </View>
         </View>
         <View style={styles.viewContent}>
@@ -201,7 +199,7 @@ export default function ViewStudent() {
                 handleActionStudent={handleActionStudent}
               />
             )}
-            keyExtractor={(item) => item.userId}
+            keyExtractor={(item) => item.enrollmentId}
             ItemSeparatorComponent={ItemSeparator}
             // ListEmptyComponent={<EmptyListComponent />}
           />
@@ -233,6 +231,12 @@ const styles = StyleSheet.create({
     fontSize: 35,
     fontWeight: "600",
     lineHeight: 45,
+  },
+  txtDesc: {
+    fontSize: 16,
+    fontWeight: "400",
+    color: "#848586",
+    marginBottom: 16,
   },
   viewContent: {
     flex: 1,

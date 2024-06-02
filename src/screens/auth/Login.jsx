@@ -55,7 +55,7 @@ export default function Login() {
   const handleLogin = () => {
     setIsLoading(true);
     userLogin({
-      username: username,
+      username: username.toLowerCase(),
       password: password,
     })
       .then(async (response) => {
