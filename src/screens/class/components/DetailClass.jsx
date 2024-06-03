@@ -240,7 +240,12 @@ export default function DetailClass() {
               </TouchableOpacity>
             </View>
             <View style={styles.listView}>
-              <TouchableOpacity style={styles.btnViewList}>
+              <TouchableOpacity
+                style={styles.btnViewList}
+                onPress={() =>
+                  navigation.navigate("LessonList", { data: formData.classId })
+                }
+              >
                 <Ionicons
                   name="newspaper-outline"
                   size={18}

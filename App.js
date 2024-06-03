@@ -6,9 +6,16 @@ import Toast, {
   ErrorToast,
   SuccessToast,
 } from "react-native-toast-message";
+import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 export default function App() {
   return (
+    // <SafeAreaProvider>
+    //   <SafeAreaView style={styles.container}>
+    //     <Navigator />
+    //     <Toast config={toastConfig} />
+    //   </SafeAreaView>
+    // </SafeAreaProvider>
     <>
       <Navigator />
       <Toast config={toastConfig} />
@@ -59,8 +66,5 @@ const toastConfig = {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
   },
 });

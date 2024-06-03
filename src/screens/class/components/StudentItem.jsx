@@ -96,7 +96,7 @@ export default function StudentItem({
                 swipeableRef.current.close();
               }}
             >
-              <Ionicons name="trash-outline" size={28} color={"white"} />
+              <Ionicons name="close-outline" size={28} color={"white"} />
             </TouchableOpacity>
           </Animated.View>
         )}

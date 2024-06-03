@@ -176,8 +176,8 @@ export default function ViewStudent() {
           <View>
             <Text style={styles.txtHeader}>Student List</Text>
             <Text style={styles.txtDesc}>
-              A list of currently enrolled students in the class and students
-              needing approval.
+              A complete list of currently enrolled students in the class and
+              students needing approval.
             </Text>
           </View>
         </View>

@@ -56,3 +56,26 @@ export const checkIn = async (data) => {
     return error.response;
   }
 };
+
+export const getAttendanceReport = async (data) => {
+  try {
+    const accessToken = await AsyncStorage.getItem("accessToken");
+
+    const report_request = {
+      lessonId: data?.lessonId || "",
+      classId: data?.classId || "",
+    };
+
+    const result = await ApiManager("/attendance-records/reports", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      data: report_request,
+    });
+    return result;
+  } catch (error) {
+    return error.response;
+  }
+};

@@ -17,3 +17,21 @@ export const getLessonInADay = async (time) => {
     return error.response;
   }
 };
+
+export const getAllLessonsInClass = async (classId) => {
+  try {
+    // Retrieve the token from AsyncStorage
+    const accessToken = await AsyncStorage.getItem("accessToken");
+
+    const result = await ApiManager(`/lessons?classId=${classId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    return result;
+  } catch (error) {
+    return error.response;
+  }
+};
