@@ -4,11 +4,12 @@ import Login from "../screens/auth/Login";
 import Register from "../screens/auth/Register";
 import BottomTab from "./BottomTab";
 import AddNewClass from "../screens/class/components/AddNewClass";
+import { createRef } from "react";
 
 export default function Navigator() {
   const Stack = createNativeStackNavigator();
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator
         screenOptions={{ headerShown: false }}
         initialRouteName="Login"
@@ -19,4 +20,17 @@ export default function Navigator() {
       </Stack.Navigator>
     </NavigationContainer>
   );
+}
+
+export const navigationRef = createRef();
+
+export function navigate(name, params) {
+  navigationRef.current?.navigate(name, params);
+}
+
+export function replace(name, params) {
+  navigationRef.current?.reset({
+    index: 0,
+    routes: [{ name, params }],
+  });
 }
