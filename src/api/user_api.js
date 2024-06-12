@@ -1,3 +1,4 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import ApiManager from "./ApiManager";
 
 export const userLogin = async (data) => {
@@ -25,6 +26,23 @@ export const addNewUser = async (data) => {
         "Content-Type": "application/json",
       },
       data: data,
+    });
+    return result;
+  } catch (error) {
+    return error.response;
+  }
+};
+
+export const getUserById = async (userId) => {
+  try {
+    const accessToken = await AsyncStorage.getItem("accessToken");
+
+    const result = await ApiManager(`/users/${userId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
     });
     return result;
   } catch (error) {

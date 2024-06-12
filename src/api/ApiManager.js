@@ -25,8 +25,6 @@ ApiManager.interceptors.response.use(
       await AsyncStorage.removeItem("roleName");
       await AsyncStorage.removeItem("principal");
 
-      console.log("asdsad");
-
       // Alert the user
       Alert.alert("Session expired", "Please log in again.");
 
