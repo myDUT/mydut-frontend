@@ -1,17 +1,34 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  Modal,
+  Animated,
+} from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useEffect, useState } from "react";
+import * as ImagePicker from "expo-image-picker";
 import { getUserById } from "../../api/user_api";
+import { getPresignedUploadUrls, uploadImage } from "../../api/storage_api";
+import SplashScreen from "../SplashScreen";
 
 export default function Setting() {
   const { top: paddingTop } = useSafeAreaInsets();
   const navigation = useNavigation();
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [personalInfo, setPersonalInfo] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(100)).current;
+
+  const [images, setImages] = useState([]);
 
   const onLogout = async () => {
     await AsyncStorage.removeItem("accessToken");
@@ -44,6 +61,112 @@ export default function Setting() {
     fetchPersonalInfoByUserId();
   }, []);
 
+  useEffect(() => {
+    if (images.length > 0) {
+      uploadImagesData();
+    }
+  }, [images]);
+
+  useEffect(() => {
+    if (modalVisible) {
+      // Start fade-in and slide-up animation
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      // Start fade-out and slide-down animation
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 100,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [modalVisible, fadeAnim, slideAnim]);
+
+  const uploadImagesData = async () => {
+    setIsUploading(true);
+    const fileNames = images.map((asset) => asset.fileName);
+    const data = { fileNames: fileNames };
+    try {
+      const result = await getPresignedUploadUrls(data);
+      if (result.data.success === true) {
+        const preSignedUrls = result?.data?.data || [];
+
+        // preSignedUrls.map(async (preSignedUrl, index) => {
+        //   const localImage = images[index];
+
+        //   await uploadImage(preSignedUrl.url, localImage);
+        // });
+        // Tạo một mảng các promises từ các calls uploadImage
+        const uploadPromises = preSignedUrls.map((preSignedUrl, index) => {
+          const localImage = images[index];
+          return uploadImage(preSignedUrl.url, localImage);
+        });
+
+        // Chờ tất cả các promises hoàn thành
+        await Promise.all(uploadPromises);
+      }
+    } catch (error) {
+    } finally {
+      setIsUploading(false);
+      setImages([]);
+    }
+  };
+
+  const openCamera = async () => {
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      alert("Permission to access camera is required!");
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync();
+
+    if (!result.canceled) {
+      setImages(result?.assets);
+    }
+  };
+
+  const openImageLibrary = async () => {
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      alert("Permission to access photo library is required!");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImages(result?.assets);
+      // console.log(result?.assets[0]?.uri);
+      // console.log(result?.assets.map((asset) => asset.fileName));
+    }
+  };
+
   return (
     <View style={[styles.container, { paddingTop }]}>
       <View style={styles.header}>
@@ -53,6 +176,7 @@ export default function Setting() {
               style={styles.profilePicImage}
               source={{
                 uri: "https://dut.udn.vn/Files/admin/images/Tin_tuc/Khac/2020/LogoDUT/image002.jpg",
+                // uri: "http://172.23.144.133:9000/mydut-private-dev/user-data/102190002/1000000048.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=r9Fsr6GkIDj9tgb6oExn%2F20240615%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240615T172353Z&X-Amz-Expires=43200&X-Amz-SignedHeaders=host&X-Amz-Signature=048521d1f3805344a6af9d8cc0cc3aaf6d848a15bec9772ca6cd82d355f59e76",
               }}
             />
           </View>
@@ -77,18 +201,15 @@ export default function Setting() {
                 </>
               )}
             </View>
-            {/* <Ionicons
-              name="create-outline"
-              size={20}
-              color="white"
-              style={styles.editIcon}
-            /> */}
           </View>
         </View>
       </View>
 
       <View style={styles.menuContainer}>
-        <TouchableOpacity style={styles.menuItem}>
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => setModalVisible(true)}
+        >
           <Ionicons
             name="eye-outline"
             size={20}
@@ -153,10 +274,61 @@ export default function Setting() {
           Address: 54 Nguyen Luong Bang, Hoa Khanh Bac Ward, Lien Chieu
           District, Da Nang
         </Text>
-        <Text style={styles.companyInfoText}>
-          Contact: 096 450 9757 - ngocdat1908@gmail.com
-        </Text>
+        <Text style={styles.companyInfoText}>Phone: 096 450 9757</Text>
+        <Text style={styles.companyInfoText}>Email: ngocdat1908@gmail.com</Text>
       </View>
+
+      <Modal
+        animationType="none"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <Animated.View
+          style={[
+            styles.modalContainer,
+            {
+              opacity: fadeAnim,
+            },
+          ]}
+        >
+          <Animated.View
+            style={[
+              styles.modalContent,
+              {
+                transform: [{ translateY: slideAnim }],
+              },
+            ]}
+          >
+            <TouchableOpacity style={styles.modalButton} onPress={openCamera}>
+              <Text style={styles.modalButtonText}>Open Camera</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={openImageLibrary}
+            >
+              <Text style={styles.modalButtonText}>
+                Import Images From Library
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.modalButton}>
+              <Text style={styles.modalButtonText}>View Images Data</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={styles.modalButtonText}>Cancel</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </Animated.View>
+      </Modal>
+      {/* <Image
+        source={{
+          uri: "file:///data/user/0/host.exp.exponent/cache/ExperienceData/%2540vndat00%252FCheckInApp/ImagePicker/9a92fbc2-3bcb-4a9d-b3ee-ea937961a748.png",
+        }}
+      /> */}
+      <SplashScreen isDisplay={isUploading} />
     </View>
   );
 }
@@ -215,60 +387,70 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   profilePic: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: "white",
-    justifyContent: "center",
-    alignItems: "center",
+    width: 70,
+    height: 70,
+    // borderRadius: 40,
+    overflow: "hidden",
   },
   profilePicImage: {
-    width: 80,
-    height: 80,
-    // borderRadius: 40,
+    width: "100%",
+    height: "100%",
   },
   menuContainer: {
-    marginVertical: 20,
+    marginTop: 20,
+    paddingHorizontal: 20,
   },
   menuItem: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "white",
-    padding: 15,
-    marginHorizontal: 20,
-    marginVertical: 10,
-    borderRadius: 15,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.22,
-    shadowRadius: 2.22,
-    elevation: 3,
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
   },
   menuIcon: {
     marginRight: 10,
   },
   menuItemText: {
     fontSize: 16,
-    fontWeight: "500",
-    color: "#333",
     flex: 1,
   },
   rightIcon: {
-    alignSelf: "flex-end",
+    marginLeft: "auto",
   },
   companyInfoContainer: {
-    marginHorizontal: 20,
-    marginVertical: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     justifyContent: "flex-end",
     flex: 1,
   },
   companyInfoText: {
-    fontSize: 14,
-    marginVertical: 2,
-    color: "#555",
+    fontSize: 12,
+    color: "#888",
     textAlign: "left",
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContent: {
+    padding: 20,
+    backgroundColor: "white",
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    alignItems: "center",
+  },
+  modalButton: {
+    width: "100%",
+    padding: 15,
+    borderRadius: 12,
+    backgroundColor: "#f38933",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  modalButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "500",
   },
 });

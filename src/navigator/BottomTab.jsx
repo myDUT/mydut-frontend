@@ -5,6 +5,7 @@ import Class from "../screens/class";
 import Notification from "../screens/notification";
 import Setting from "../screens/setting";
 import ClassStack from "./SubNavigator/ClassStack";
+import SettingStack from "./SubNavigator/SettingStack";
 
 export default function BottomTab() {
   const Tab = createBottomTabNavigator();
@@ -38,7 +39,7 @@ export default function BottomTab() {
       <Tab.Screen name={"Home"} component={Home} />
       <Tab.Screen name={"Class"} component={ClassStack} />
       <Tab.Screen name={"Notification"} component={Notification} />
-      <Tab.Screen name={"Setting"} component={Setting} />
+      <Tab.Screen name={"Setting"} component={SettingStack} />
     </Tab.Navigator>
   );
 }
