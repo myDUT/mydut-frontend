@@ -1,5 +1,5 @@
 import moment from "moment";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Alert,
+  Modal as ModalDefault,
+  Animated,
 } from "react-native";
 import Modal from "react-native-modal";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -38,9 +40,14 @@ export default function Home() {
   const [lessonList, setLessonList] = useState([]);
   const [currentLessonCheckIn, setCurrectLessonCheckIn] = useState({
     lessonId: "",
+    classCode: "",
+    classId: "",
     isEnableCheckIn: false,
   });
   const [isLoading, setIsLoading] = useState(false);
+
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(100)).current;
 
   useEffect(() => {
     getLocation();
@@ -55,6 +62,37 @@ export default function Home() {
   // useEffect(() => {
   //   console.log("🚀 ~ useEffect ~ lessonList:", lessonList);
   // }, [lessonList]);
+  useEffect(() => {
+    if (modalImagePicker) {
+      // Start fade-in and slide-up animation
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      // Start fade-out and slide-down animation
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 100,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [modalImagePicker, fadeAnim, slideAnim]);
 
   useEffect(() => {
     console.log("Tracking current lesson check in:", currentLessonCheckIn);
@@ -329,14 +367,18 @@ export default function Home() {
               </View>
               <View style={{ flex: 3 }}>
                 <LessonCard
-                  onPress={(lessonId, isEnableCheckIn) => {
+                  onPress={(lessonId, classCode, classId, isEnableCheckIn) => {
                     setModalCheckInVisible(true);
+                    setModalImagePicker(true);
                     setCurrectLessonCheckIn({
                       lessonId: lessonId,
+                      classCode: classCode,
+                      classId: classId,
                       isEnableCheckIn: isEnableCheckIn,
                     });
                   }}
                   infoClass={item}
+                  roleName={roleName}
                 />
               </View>
             </View>
@@ -370,7 +412,7 @@ export default function Home() {
       )}
       {roleName === ROLE.TEACHER && (
         <>
-          <Modal
+          {/* <Modal
             isVisible={modalCheckInVisible}
             onBackdropPress={() => setModalCheckInVisible(!modalCheckInVisible)}
             style={styles.modalCheckIn}
@@ -393,7 +435,6 @@ export default function Home() {
                 >
                   {currentLessonCheckIn.isEnableCheckIn ? "LOCK" : "OPEN"}
                 </Text>
-                {/* <ActivityIndicator size={"large"} color={"red"} /> */}
               </TouchableOpacity>
               <Text style={[styles.txtOrText]}>- OR -</Text>
               <TouchableOpacity
@@ -405,11 +446,11 @@ export default function Home() {
                 >
                   Enhanced Attendance Tracking
                 </Text>
-                {/* <ActivityIndicator size={"large"} color={"red"} /> */}
               </TouchableOpacity>
             </View>
-          </Modal>
-          <Modal
+          </Modal> */}
+
+          {/* <Modal
             isVisible={modalImagePicker}
             onBackdropPress={() => setModalImagePicker(!modalImagePicker)}
             style={styles.modalImagePicker}
@@ -423,7 +464,76 @@ export default function Home() {
                 <Text>Close</Text>
               </TouchableOpacity>
             </View>
-          </Modal>
+          </Modal> */}
+          <ModalDefault
+            animationType="none"
+            transparent={true}
+            visible={modalImagePicker}
+            onRequestClose={() => setModalImagePicker(false)}
+          >
+            <Animated.View
+              style={[
+                styles.modalContainer,
+                {
+                  opacity: fadeAnim,
+                },
+              ]}
+            >
+              <Animated.View
+                style={[
+                  styles.modalContent,
+                  {
+                    transform: [{ translateY: slideAnim }],
+                  },
+                ]}
+              >
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  activeOpacity={0.8}
+                  onPress={() => {
+                    handleManageCheckIn(currentLessonCheckIn.isEnableCheckIn);
+                    setModalImagePicker(false);
+                  }}
+                >
+                  <Text style={styles.modalButtonText}>
+                    {currentLessonCheckIn.isEnableCheckIn ? "Lock" : "Open"}{" "}
+                    Check-in Form
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  activeOpacity={0.8}
+
+                  // onPress={openImageLibrary}
+                >
+                  <Text style={styles.modalButtonText}>
+                    Import Images To Recognize
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.modalButtonText}>
+                    Facial Recognition Attendance Data
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.modalButtonText}>Attendance Report</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  style={styles.modalButton}
+                  onPress={() => setModalImagePicker(false)}
+                >
+                  <Text style={styles.modalButtonText}>Cancel</Text>
+                </TouchableOpacity>
+              </Animated.View>
+            </Animated.View>
+          </ModalDefault>
         </>
       )}
     </View>
@@ -543,5 +653,30 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.5)",
+  },
+  modalContent: {
+    padding: 20,
+    backgroundColor: "white",
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    alignItems: "center",
+  },
+  modalButton: {
+    width: "100%",
+    padding: 15,
+    borderRadius: 12,
+    backgroundColor: "#f38933",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  modalButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "500",
   },
 });

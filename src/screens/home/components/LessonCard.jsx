@@ -4,7 +4,7 @@ import { compareWithCurrentTime } from "../../../utils/DateUtils";
 import { useEffect, useState } from "react";
 import { ROLE } from "../../../enum/RoleEnum";
 
-export default function LessonCard({ infoClass, onPress }) {
+export default function LessonCard({ infoClass, roleName, onPress }) {
   const {
     datetimeFrom,
     datetimeTo,
@@ -13,6 +13,8 @@ export default function LessonCard({ infoClass, onPress }) {
     roomName,
     presentStudent,
     totalStudent,
+    classCode,
+    classId,
     lessonId,
     isEnableCheckIn,
   } = infoClass;
@@ -27,7 +29,10 @@ export default function LessonCard({ infoClass, onPress }) {
 
   return (
     <TouchableOpacity
-      disabled={!compareWithCurrentTime(datetimeFrom, datetimeTo)}
+      disabled={
+        !compareWithCurrentTime(datetimeFrom, datetimeTo) &&
+        ROLE.STUDENT === roleName
+      }
       // disabled={false}
       style={[
         styles.lessonCard,
@@ -35,7 +40,8 @@ export default function LessonCard({ infoClass, onPress }) {
           ? { backgroundColor: "#4DC591" }
           : { backgroundColor: "#e0e0e0c5" },
       ]}
-      onPress={() => onPress(lessonId, isEnableCheckIn)}
+      onPress={() => onPress(lessonId, classCode, classId, isEnableCheckIn)}
+      activeOpacity={0.8}
     >
       <View style={styles.viewHeader}>
         <Text

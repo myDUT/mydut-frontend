@@ -14,7 +14,11 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as ImagePicker from "expo-image-picker";
 import { getUserById } from "../../api/user_api";
-import { getPresignedUploadUrls, uploadImage } from "../../api/storage_api";
+import {
+  getPresignedUploadUrls,
+  syncPersonalData,
+  uploadImage,
+} from "../../api/storage_api";
 import SplashScreen from "../SplashScreen";
 
 export default function Setting() {
@@ -121,6 +125,13 @@ export default function Setting() {
 
         // Chờ tất cả các promises hoàn thành
         await Promise.all(uploadPromises);
+
+        console.log(
+          "🚀 ~ uploadImagesData ~ personalInfo?.studentCode:",
+          personalInfo?.studentCode
+        );
+        // Call Django Server to synchonize personal data
+        syncPersonalData(personalInfo?.studentCode);
       }
     } catch (error) {
     } finally {
@@ -300,10 +311,15 @@ export default function Setting() {
               },
             ]}
           >
-            <TouchableOpacity style={styles.modalButton} onPress={openCamera}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              style={styles.modalButton}
+              onPress={openCamera}
+            >
               <Text style={styles.modalButtonText}>Open Camera</Text>
             </TouchableOpacity>
             <TouchableOpacity
+              activeOpacity={0.8}
               style={styles.modalButton}
               onPress={openImageLibrary}
             >
@@ -311,10 +327,18 @@ export default function Setting() {
                 Import Images From Library
               </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.modalButton}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              style={styles.modalButton}
+              onPress={() => {
+                navigation.navigate("ViewImage", { isAttendanceData: false });
+                setModalVisible(false);
+              }}
+            >
               <Text style={styles.modalButtonText}>View Images Data</Text>
             </TouchableOpacity>
             <TouchableOpacity
+              activeOpacity={0.8}
               style={styles.modalButton}
               onPress={() => setModalVisible(false)}
             >

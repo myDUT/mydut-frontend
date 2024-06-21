@@ -1,5 +1,6 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Setting from "../../screens/setting";
+import ViewImage from "../../screens/ViewImage";
 
 const SettingStack = () => {
   const Stack = createNativeStackNavigator();
@@ -10,6 +11,7 @@ const SettingStack = () => {
       screenOptions={{ headerShown: false }}
     >
       <Stack.Screen name="SettingList" component={Setting} />
+      <Stack.Screen name="ViewImage" component={ViewImage} />
     </Stack.Navigator>
   );
 };

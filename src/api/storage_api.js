@@ -3,6 +3,7 @@ import ApiManager from "./ApiManager";
 import * as FileSystem from "expo-file-system";
 import { Buffer } from "buffer";
 import axios from "axios";
+import ApiDRFManager from "./ApiDRFManager";
 
 export const getPresignedUploadUrls = async (data) => {
   const accessToken = await AsyncStorage.getItem("accessToken");
@@ -14,6 +15,30 @@ export const getPresignedUploadUrls = async (data) => {
         Authorization: `Bearer ${accessToken}`,
       },
       data: data,
+    });
+
+    return result;
+  } catch (error) {
+    return error.response.data;
+  }
+};
+
+export const getPersonalImages = async () => {
+  const accessToken = await AsyncStorage.getItem("accessToken");
+  try {
+    const request_data = {
+      path: "",
+      searchText: "",
+      isPublicBucket: false,
+      isRecursive: true,
+    };
+    const result = await ApiManager("/storages/data-image-user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      data: request_data,
     });
 
     return result;
@@ -43,11 +68,27 @@ export const uploadImage = async (presignedUrl, localImageAsset) => {
       },
       data: binaryData,
     });
-    // console.log("3");
+    // Upload the binary data using Axios
 
     return result;
   } catch (error) {
     console.log("Error uploading image:", error);
     return error.response.data;
+  }
+};
+
+export const syncPersonalData = async (studentCode) => {
+  try {
+    const result = await ApiDRFManager("/face-recognition/sync-personal-data", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: { student_code: studentCode },
+    });
+
+    return result;
+  } catch (error) {
+    return error.response.error;
   }
 };
