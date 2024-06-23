@@ -23,6 +23,24 @@ export const getPresignedUploadUrls = async (data) => {
   }
 };
 
+export const getPresignedUrlsToRecognition = async (data) => {
+  const accessToken = await AsyncStorage.getItem("accessToken");
+  try {
+    const result = await ApiManager("/storages/upload-recognition-images", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      data: data,
+    });
+
+    return result;
+  } catch (error) {
+    return error.response.data;
+  }
+};
+
 export const getPersonalImages = async () => {
   const accessToken = await AsyncStorage.getItem("accessToken");
   try {
@@ -85,6 +103,28 @@ export const syncPersonalData = async (studentCode) => {
         "Content-Type": "application/json",
       },
       data: { student_code: studentCode },
+    });
+
+    return result;
+  } catch (error) {
+    return error.response.error;
+  }
+};
+
+export const facialRecognition = async (request) => {
+  const data = {
+    class_id: request.classId,
+    class_code: request.classCode,
+    lesson_id: request.lessonId,
+  };
+
+  try {
+    const result = await ApiDRFManager("/face-recognition/recognize", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      data: data,
     });
 
     return result;

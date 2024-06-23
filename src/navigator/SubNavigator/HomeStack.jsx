@@ -1,17 +1,18 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Setting from "../../screens/setting";
 import ViewImage from "../../screens/ViewImage";
+import Home from "../../screens/home";
 
-const SettingStack = () => {
+const HomeStack = () => {
   const Stack = createNativeStackNavigator();
 
   return (
     <Stack.Navigator
-      initialRouteName="SettingList"
+      initialRouteName="HomeScreen"
       screenOptions={{ headerShown: false }}
     >
-      <Stack.Screen name="SettingList" component={Setting} />
-      <Stack.Screen name="ViewPersonalImage" component={ViewImage} />
+      <Stack.Screen name="HomeScreen" component={Home} />
+      <Stack.Screen name="ViewFacialRecognitionImage" component={ViewImage} />
     </Stack.Navigator>
   );
 };

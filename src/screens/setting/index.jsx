@@ -217,24 +217,27 @@ export default function Setting() {
       </View>
 
       <View style={styles.menuContainer}>
-        <TouchableOpacity
-          style={styles.menuItem}
-          onPress={() => setModalVisible(true)}
-        >
-          <Ionicons
-            name="eye-outline"
-            size={20}
-            color="#f38933"
-            style={styles.menuIcon}
-          />
-          <Text style={styles.menuItemText}>Facial Recognition Data</Text>
-          <Ionicons
-            name="chevron-forward-outline"
-            size={20}
-            color="#000"
-            style={styles.rightIcon}
-          />
-        </TouchableOpacity>
+        {personalInfo["roleName"] === "STUDENT" && (
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => setModalVisible(true)}
+          >
+            <Ionicons
+              name="eye-outline"
+              size={20}
+              color="#f38933"
+              style={styles.menuIcon}
+            />
+            <Text style={styles.menuItemText}>Facial Recognition Data</Text>
+            <Ionicons
+              name="chevron-forward-outline"
+              size={20}
+              color="#000"
+              style={styles.rightIcon}
+            />
+          </TouchableOpacity>
+        )}
+
         <TouchableOpacity style={styles.menuItem}>
           <Ionicons
             name="settings-outline"
@@ -331,7 +334,7 @@ export default function Setting() {
               activeOpacity={0.8}
               style={styles.modalButton}
               onPress={() => {
-                navigation.navigate("ViewImage", { isAttendanceData: false });
+                navigation.navigate("ViewPersonalImage", { isAttendanceData: false });
                 setModalVisible(false);
               }}
             >

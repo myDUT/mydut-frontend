@@ -12,6 +12,7 @@ import {
   Animated,
 } from "react-native";
 import Modal from "react-native-modal";
+import * as ImagePicker from "expo-image-picker";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Header from "./components/Header";
 import LessonCard from "./components/LessonCard";
@@ -26,6 +27,12 @@ import EmptyListComponent from "./components/EmptyListComponent";
 import { checkIn, closeCheckIn, openCheckIn } from "../../api/checkin_api";
 import Toast from "react-native-toast-message";
 import { useFocusEffect } from "@react-navigation/native";
+import {
+  facialRecognition,
+  getPresignedUrlsToRecognition,
+  uploadImage,
+} from "../../api/storage_api";
+import SplashScreen from "../SplashScreen";
 
 export default function Home() {
   const { top: paddingTop } = useSafeAreaInsets();
@@ -45,6 +52,8 @@ export default function Home() {
     isEnableCheckIn: false,
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [isUploadingRecogImages, setIsUploadingRecogImages] = useState(false);
+  const [recogImages, setRecogImages] = useState([]);
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(100)).current;
@@ -97,6 +106,12 @@ export default function Home() {
   useEffect(() => {
     console.log("Tracking current lesson check in:", currentLessonCheckIn);
   }, [currentLessonCheckIn]);
+
+  useEffect(() => {
+    if (recogImages.length > 0) {
+      uploadRecogImages();
+    }
+  }, [recogImages]);
 
   const fetchAvailableLessonList = async (time) => {
     setIsLoading(true);
@@ -243,6 +258,83 @@ export default function Home() {
         setIsLoading(false);
         setModalCheckInVisible(false);
       }
+    }
+  };
+
+  const openCamera = async () => {
+    const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      alert("Permission to access camera is required!");
+      return;
+    }
+
+    const result = await ImagePicker.launchCameraAsync();
+
+    if (!result.canceled) {
+      setRecogImages(result?.assets);
+    }
+  };
+
+  const openImageLibrary = async () => {
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      alert("Permission to access photo library is required!");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsMultipleSelection: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setRecogImages(result?.assets);
+      // console.log(result?.assets[0]?.uri);
+      // console.log(result?.assets.map((asset) => asset.fileName));
+    }
+  };
+
+  const uploadRecogImages = async () => {
+    setIsUploadingRecogImages(true);
+    const fileNames = recogImages.map((asset) => asset.fileName);
+    const data = {
+      fileNames: fileNames,
+      classId: currentLessonCheckIn.classId,
+      classCode: currentLessonCheckIn.classCode,
+      lessonId: currentLessonCheckIn.lessonId,
+    };
+
+    const recognition_request = {
+      classId: currentLessonCheckIn.classId,
+      classCode: currentLessonCheckIn.classCode,
+      lessonId: currentLessonCheckIn.lessonId,
+    };
+
+    try {
+      const result = await getPresignedUrlsToRecognition(data);
+      if (result?.data?.success == true) {
+        const preSignedUrls = result?.data?.data || [];
+
+        const uploadPromises = preSignedUrls.map((preSignedUrl, index) => {
+          const localImage = recogImages[index];
+          return uploadImage(preSignedUrl.url, localImage);
+        });
+
+        // Wait to all promise completely
+        await Promise.all(uploadPromises);
+
+        // Call Django Service to facial recognition
+        facialRecognition(recognition_request);
+      }
+    } catch (error) {
+    } finally {
+      setIsUploadingRecogImages(false);
+      setRecogImages([]);
     }
   };
 
@@ -412,59 +504,6 @@ export default function Home() {
       )}
       {roleName === ROLE.TEACHER && (
         <>
-          {/* <Modal
-            isVisible={modalCheckInVisible}
-            onBackdropPress={() => setModalCheckInVisible(!modalCheckInVisible)}
-            style={styles.modalCheckIn}
-            // customBackdrop={<View style={{ flex: 1, height: 200 }} />}
-          >
-            <View style={[styles.viewModalCheckIn, { flex: 0.3 }]}>
-              <Text style={styles.txtModalCheckIn}>
-                Are you sure to{" "}
-                {currentLessonCheckIn.isEnableCheckIn ? "lock" : "open"}{" "}
-                check-in form?
-              </Text>
-              <TouchableOpacity
-                onPress={() =>
-                  handleManageCheckIn(currentLessonCheckIn.isEnableCheckIn)
-                }
-                style={styles.btnCheckIn}
-              >
-                <Text
-                  style={{ fontSize: 18, fontWeight: "600", color: "white" }}
-                >
-                  {currentLessonCheckIn.isEnableCheckIn ? "LOCK" : "OPEN"}
-                </Text>
-              </TouchableOpacity>
-              <Text style={[styles.txtOrText]}>- OR -</Text>
-              <TouchableOpacity
-                onPress={() => openImagePicker()}
-                style={styles.btnCheckIn}
-              >
-                <Text
-                  style={{ fontSize: 18, fontWeight: "500", color: "white" }}
-                >
-                  Enhanced Attendance Tracking
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </Modal> */}
-
-          {/* <Modal
-            isVisible={modalImagePicker}
-            onBackdropPress={() => setModalImagePicker(!modalImagePicker)}
-            style={styles.modalImagePicker}
-            // customBackdrop={<View style={{ flex: 1, height: 200 }} />}
-          >
-            <View style={styles.viewModalImagePicker}>
-              <Text>Hello</Text>
-              <TouchableOpacity
-                onPress={() => setModalImagePicker(!modalImagePicker)}
-              >
-                <Text>Close</Text>
-              </TouchableOpacity>
-            </View>
-          </Modal> */}
           <ModalDefault
             animationType="none"
             transparent={true}
@@ -503,8 +542,7 @@ export default function Home() {
                 <TouchableOpacity
                   style={styles.modalButton}
                   activeOpacity={0.8}
-
-                  // onPress={openImageLibrary}
+                  onPress={openImageLibrary}
                 >
                   <Text style={styles.modalButtonText}>
                     Import Images To Recognize
@@ -536,6 +574,7 @@ export default function Home() {
           </ModalDefault>
         </>
       )}
+      <SplashScreen isDisplay={isUploadingRecogImages} />
     </View>
   );
 }
