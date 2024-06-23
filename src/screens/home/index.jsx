@@ -26,7 +26,7 @@ import { getLessonInADay } from "../../api/lesson_api";
 import EmptyListComponent from "./components/EmptyListComponent";
 import { checkIn, closeCheckIn, openCheckIn } from "../../api/checkin_api";
 import Toast from "react-native-toast-message";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import {
   facialRecognition,
   getPresignedUrlsToRecognition,
@@ -37,6 +37,7 @@ import SplashScreen from "../SplashScreen";
 export default function Home() {
   const { top: paddingTop } = useSafeAreaInsets();
 
+  const navigation = useNavigation();
   const [selectedDate, setSelectedDate] = useState(
     moment().format("YYYY-MM-DD")
   );
@@ -551,6 +552,16 @@ export default function Home() {
                 <TouchableOpacity
                   style={styles.modalButton}
                   activeOpacity={0.8}
+                  onPress={() => {
+                    let data = {
+                      classId: currentLessonCheckIn.classId,
+                      classCode: currentLessonCheckIn.classCode,
+                      lessonId: currentLessonCheckIn.lessonId,
+                      isAttendanceData: true,
+                    };
+                    navigation.navigate("ViewFacialRecognitionImage", data);
+                    setModalImagePicker(false);
+                  }}
                 >
                   <Text style={styles.modalButtonText}>
                     Facial Recognition Attendance Data

@@ -13,11 +13,14 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import SplashScreen from "./SplashScreen";
-import { getPersonalImages } from "../api/storage_api";
+import {
+  getAllFacialImagesByLesson,
+  getPersonalImages,
+} from "../api/storage_api";
 
 const { width } = Dimensions.get("window");
 
-export default function ViewImage() {
+export default function ViewFacialRecognitionImage() {
   const navigation = useNavigation();
   const route = useRoute();
   const { top: paddingTop } = useSafeAreaInsets();
@@ -29,12 +32,18 @@ export default function ViewImage() {
 
   // receivedData is classId
   const isAttendanceData = route.params?.isAttendanceData || null;
-  console.log("🚀 ~ ViewImage ~ route.params:", route.params)
 
   const fetchAllImages = async () => {
     setIsLoading(true);
     try {
-      const result = await getPersonalImages();
+      let request_data = {
+        classId: route.params?.classId,
+        classCode: route.params?.classCode,
+        lessonId: route.params?.lessonId,
+        isPublicBucket: false,
+        isRecursive: true,
+      };
+      const result = await getAllFacialImagesByLesson(request_data);
       if (result.data.success === true) {
         setImageUris(result?.data?.data || []);
       }
@@ -61,7 +70,7 @@ export default function ViewImage() {
   return (
     <View style={[styles.container, { paddingTop }]}>
       <TouchableOpacity
-        onPress={() => navigation.navigate("SettingList")}
+        onPress={() => navigation.navigate("HomeScreen")}
         style={styles.btnBack}
       >
         <Ionicons

@@ -65,9 +65,26 @@ export const getPersonalImages = async () => {
   }
 };
 
+export const getAllFacialImagesByLesson = async (data) => {
+  const accessToken = await AsyncStorage.getItem("accessToken");
+  try {
+    const result = await ApiManager("/storages/facial-image-data", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      data: data,
+    });
+
+    return result;
+  } catch (error) {
+    return error.response.data;
+  }
+};
+
 export const uploadImage = async (presignedUrl, localImageAsset) => {
   try {
-    // console.log("1");
     const fileUri = localImageAsset.uri;
 
     const fileData = await FileSystem.readAsStringAsync(fileUri, {
