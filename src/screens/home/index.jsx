@@ -13,6 +13,7 @@ import {
 } from "react-native";
 import Modal from "react-native-modal";
 import * as ImagePicker from "expo-image-picker";
+import * as ImageManipulator from "expo-image-manipulator";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Header from "./components/Header";
 import LessonCard from "./components/LessonCard";
@@ -67,7 +68,13 @@ export default function Home() {
   useEffect(() => {
     fetchAvailableLessonList(selectedDate);
     // console.log("🚀 ~ useEffect ~ lessonList:", lessonList)
-  }, [selectedDate, modalCheckInVisible]);
+  }, [selectedDate]);
+
+  useEffect(() => {
+    if (modalCheckInVisible === true) {
+      getLocation();
+    }
+  }, [modalCheckInVisible]);
 
   // useEffect(() => {
   //   console.log("🚀 ~ useEffect ~ lessonList:", lessonList);
@@ -294,10 +301,32 @@ export default function Home() {
     });
 
     if (!result.canceled) {
-      setRecogImages(result?.assets);
-      // console.log(result?.assets[0]?.uri);
-      // console.log(result?.assets.map((asset) => asset.fileName));
+      const resizedImages = await Promise.all(
+        result.assets.map(async (asset) => {
+          const resizedImage = await resizeImage(asset.uri);
+          return {
+            uri: resizedImage.uri,
+            fileName: asset.fileName,
+          };
+        })
+      );
+      setRecogImages(resizedImages);
     }
+
+    // if (!result.canceled) {
+    //   setRecogImages(result?.assets);
+    //   // console.log(result?.assets[0]?.uri);
+    //   // console.log(result?.assets.map((asset) => asset.fileName));
+    // }
+  };
+
+  const resizeImage = async (uri) => {
+    const manipResult = await ImageManipulator.manipulateAsync(
+      uri,
+      [{ resize: { width: 800 } }], // Resize image to width 800, keeping aspect ratio
+      { compress: 1, format: ImageManipulator.SaveFormat.JPEG }
+    );
+    return manipResult;
   };
 
   const uploadRecogImages = async () => {

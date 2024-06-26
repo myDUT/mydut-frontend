@@ -2,12 +2,12 @@
   "expo": {
     "name": "myDUT",
     "slug": "CheckInApp",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/images/icon.png",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/Screenshot_1.png",
+      "image": "./assets/images/splash.png",
       "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
@@ -16,6 +16,7 @@
       "supportsTablet": true
     },
     "android": {
+      "icon": "./assets/images/icon.png",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -41,11 +42,19 @@
         {
           "photosPermission": "The app accesses your photos to import data for Face Recognition Service."
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "usesCleartextTraffic": true
+          }
+        }
       ]
     ],
     "extra": {
       "eas": {
-        "projectId": "3802184d-9edc-4925-b59a-f80f1b449549"
+        "projectId": "1980a2df-2ac4-4871-9be2-5b737d179925"
       }
     }
   }

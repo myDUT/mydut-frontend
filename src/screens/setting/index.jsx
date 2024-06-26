@@ -13,6 +13,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import * as ImagePicker from "expo-image-picker";
+import * as ImageManipulator from "expo-image-manipulator";
 import { getUserById } from "../../api/user_api";
 import {
   getPresignedUploadUrls,
@@ -151,7 +152,16 @@ export default function Setting() {
     const result = await ImagePicker.launchCameraAsync();
 
     if (!result.canceled) {
-      setImages(result?.assets);
+      const resizedImages = await Promise.all(
+        result.assets.map(async (asset) => {
+          const resizedImage = await resizeImage(asset.uri);
+          return {
+            uri: resizedImage.uri,
+            fileName: asset.fileName,
+          };
+        })
+      );
+      setImages(resizedImages);
     }
   };
 
@@ -172,10 +182,32 @@ export default function Setting() {
     });
 
     if (!result.canceled) {
-      setImages(result?.assets);
-      // console.log(result?.assets[0]?.uri);
-      // console.log(result?.assets.map((asset) => asset.fileName));
+      const resizedImages = await Promise.all(
+        result.assets.map(async (asset) => {
+          const resizedImage = await resizeImage(asset.uri);
+          return {
+            uri: resizedImage.uri,
+            fileName: asset.fileName,
+          };
+        })
+      );
+      setImages(resizedImages);
     }
+
+    // if (!result.canceled) {
+    //   setImages(result?.assets);
+    //   // console.log(result?.assets[0]?.uri);
+    //   // console.log(result?.assets.map((asset) => asset.fileName));
+    // }
+  };
+
+  const resizeImage = async (uri) => {
+    const manipResult = await ImageManipulator.manipulateAsync(
+      uri,
+      [{ resize: { width: 800 } }], // Resize image to width 800, keeping aspect ratio
+      { compress: 1, format: ImageManipulator.SaveFormat.JPEG }
+    );
+    return manipResult;
   };
 
   return (
@@ -186,8 +218,8 @@ export default function Setting() {
             <Image
               style={styles.profilePicImage}
               source={{
-                uri: "https://dut.udn.vn/Files/admin/images/Tin_tuc/Khac/2020/LogoDUT/image002.jpg",
-                // uri: "http://172.23.144.133:9000/mydut-private-dev/user-data/102190002/1000000048.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=r9Fsr6GkIDj9tgb6oExn%2F20240615%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20240615T172353Z&X-Amz-Expires=43200&X-Amz-SignedHeaders=host&X-Amz-Signature=048521d1f3805344a6af9d8cc0cc3aaf6d848a15bec9772ca6cd82d355f59e76",
+                // uri: "https://dut.udn.vn/Files/admin/images/Tin_tuc/Khac/2020/LogoDUT/image002.jpg",
+                uri: "http://35.240.129.253:9001/api/v1/buckets/capstone-project/objects/download?preview=true&prefix=image002.jpg",
               }}
             />
           </View>
@@ -280,7 +312,7 @@ export default function Setting() {
       </View>
 
       <View style={styles.companyInfoContainer}>
-        <Text style={styles.companyInfoText}>CAPSTONE PROJECT K19 - myDUT</Text>
+        <Text style={styles.companyInfoText}>CAPSTONE PROJECT - myDUT</Text>
         <Text style={styles.companyInfoText}>
           Da Nang University of Science and Technology
         </Text>
@@ -334,7 +366,9 @@ export default function Setting() {
               activeOpacity={0.8}
               style={styles.modalButton}
               onPress={() => {
-                navigation.navigate("ViewPersonalImage", { isAttendanceData: false });
+                navigation.navigate("ViewPersonalImage", {
+                  isAttendanceData: false,
+                });
                 setModalVisible(false);
               }}
             >

@@ -87,12 +87,14 @@ export const uploadImage = async (presignedUrl, localImageAsset) => {
   try {
     const fileUri = localImageAsset.uri;
 
-    const fileData = await FileSystem.readAsStringAsync(fileUri, {
-      encoding: FileSystem.EncodingType.Base64, // Đọc dưới dạng base64 (tạm thời)
-    });
+    const binaryData = await fileToBinary(localImageAsset.uri);
 
-    // Chuyển đổi Base64 sang binary
-    const binaryData = Buffer.from(fileData, "base64");
+    // const fileData = await FileSystem.readAsStringAsync(fileUri, {
+    //   encoding: FileSystem.EncodingType.Base64, // Đọc dưới dạng base64 (tạm thời)
+    // });
+
+    // // Chuyển đổi Base64 sang binary
+    // const binaryData = Buffer.from(fileData, "base64");
 
     // console.log("2");
 
@@ -109,6 +111,19 @@ export const uploadImage = async (presignedUrl, localImageAsset) => {
   } catch (error) {
     console.log("Error uploading image:", error);
     return error.response.data;
+  }
+};
+
+export const fileToBinary = async (fileUri) => {
+  try {
+    const response = await fetch(fileUri);
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const binaryData = await response.arrayBuffer();
+    return binaryData;
+  } catch (error) {
+    throw new Error("Unable to fetch the file as binary data");
   }
 };
 

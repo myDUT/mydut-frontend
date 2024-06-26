@@ -37,7 +37,8 @@ export default function Header() {
     <View style={styles.viewHeader}>
       <Image
         source={{
-          uri: "https://dut.udn.vn/Files/admin/images/Tin_tuc/Khac/2020/LogoDUT/image002.jpg",
+          // uri: "https://dut.udn.vn/Files/admin/images/Tin_tuc/Khac/2020/LogoDUT/image002.jpg",
+          uri: "http://35.240.129.253:9001/api/v1/buckets/capstone-project/objects/download?preview=true&prefix=image002.jpg",
         }}
         style={styles.imgAvt}
       />
