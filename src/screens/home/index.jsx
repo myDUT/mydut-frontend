@@ -66,15 +66,12 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    fetchAvailableLessonList(selectedDate);
-    // console.log("🚀 ~ useEffect ~ lessonList:", lessonList)
-  }, [selectedDate]);
-
-  useEffect(() => {
     if (modalCheckInVisible === true) {
       getLocation();
     }
-  }, [modalCheckInVisible]);
+    fetchAvailableLessonList(selectedDate);
+    // console.log("🚀 ~ useEffect ~ lessonList:", lessonList)
+  }, [selectedDate, modalCheckInVisible]);
 
   // useEffect(() => {
   //   console.log("🚀 ~ useEffect ~ lessonList:", lessonList);
